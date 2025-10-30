@@ -111,7 +111,7 @@ namespace Rating.API.Controllers
             
             // Store in cache for future requests (cache for 5 minutes)
             var serializedPost = System.Text.Json.JsonSerializer.Serialize(dto);
-            await _cacheService.SetCachedValueAsync(cacheKey, serializedPost);
+            await _cacheService.SetCachedValueAsync(cacheKey, serializedPost, TimeSpan.FromMinutes(5));
 
             _logger.LogInformation("Post alındı ve cache'e kaydedildi: ID={PostId}, Başlık={Title}", post.PostId, post.Title);
             return Ok(dto);

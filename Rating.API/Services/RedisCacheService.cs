@@ -9,35 +9,34 @@ namespace Rating.API.Services
     public class RedisCacheService : ICacheService
     {
         private readonly IConnectionMultiplexer _redis;
+        private readonly IDatabase _database;
+        
         public RedisCacheService(IConnectionMultiplexer redis)
         {
             _redis = redis;
+            _database = _redis.GetDatabase();
         }
 
         public async Task<string> GetCachedValueAsync(string key)
         {
-            var db = _redis.GetDatabase();
-            var value = await db.StringGetAsync(key);
+            var value = await _database.StringGetAsync(key);
 
             return (string?)value ?? string.Empty;
         }
 
         public async Task RemoveCachedValueAsync(string key)
         {
-            var db = _redis.GetDatabase();
-            await db.KeyDeleteAsync(key);
+            await _database.KeyDeleteAsync(key);
         }
 
         public Task SetCachedValueAsync(string key, string value)
         {
-            var db = _redis.GetDatabase();
-            return db.StringSetAsync(key, value);
+            return _database.StringSetAsync(key, value);
         }
 
         public Task SetCachedValueAsync(string key, string value, TimeSpan expiration)
         {
-            var db = _redis.GetDatabase();
-            return db.StringSetAsync(key, value, expiration);
+            return _database.StringSetAsync(key, value, expiration);
         }
     }
 }

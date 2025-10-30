@@ -62,10 +62,10 @@ namespace Rating.API.Controllers
             {
                 return BadRequest("Geçersiz kullanıcı adı veya şifre.");
             }
-            return Ok(new { Token = GenerateJWT(user) });
+            return Ok(new { Token = await GenerateJWTAsync(user) });
         }
 
-        private object GenerateJWT(AppUser user)
+        private async Task<object> GenerateJWTAsync(AppUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenValue = _configuration.GetSection("AppSettings:Token").Value;
@@ -74,7 +74,7 @@ namespace Rating.API.Controllers
                 throw new InvalidOperationException("JWT token key is not configured.");
             }
             var key = Encoding.ASCII.GetBytes(tokenValue);
-            var roles = _userManager.GetRolesAsync(user).Result;
+            var roles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>
                {
                   new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
