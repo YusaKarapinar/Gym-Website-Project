@@ -1,0 +1,67 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-dumbbell fa-3x text-primary mb-3"></i>
+                        <h2 class="fw-bold">Welcome Back!</h2>
+                        <p class="text-muted">Login to continue your fitness journey</p>
+                    </div>
+
+                    <form asp-action="Login" method="post">
+                    @if(ViewData.ModelState.ErrorCount > 0){
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                    }
+
+                        <div class="mb-4">
+                            <label asp-for="Username" class="form-label fw-bold">
+                                <i class="fas fa-user"></i> Username
+                            </label>
+                            <input asp-for="Username" class="form-control form-control-lg" placeholder="Enter your username" />
+                            <span asp-validation-for="Username" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Password" class="form-label fw-bold">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Enter your password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4 form-check">
+                            <input asp-for="RememberMe" type="checkbox" class="form-check-input" id="rememberMe" checked>
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me for 30 days
+                            </label>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="mb-0">Don't have an account? 
+                                <a asp-action="Register" class="fw-bold text-decoration-none">Sign Up</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

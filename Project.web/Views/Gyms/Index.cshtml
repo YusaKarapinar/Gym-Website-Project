@@ -1,0 +1,39 @@
+@model IEnumerable<GymViewModel>
+
+@{
+    ViewData["Title"] = "Gym Listesi";
+}
+
+<h1>Spor Salonları</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Salon Ekle</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>İsim</th>
+            <th>Adres</th>
+            <th>Telefon</th>
+            <th>Aktif</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gym in Model)
+        {
+            <tr>
+                <td>@gym.Name</td>
+                <td>@gym.Address</td>
+                <td>@gym.PhoneNumber</td>
+                <td>@(gym.IsActive ? "Evet" : "Hayır")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@gym.GymId" class="btn btn-sm btn-info">Detay</a>
+                    <a asp-action="Edit" asp-route-id="@gym.GymId" class="btn btn-sm btn-warning">Düzenle</a>
+                    <a asp-action="Delete" asp-route-id="@gym.GymId" class="btn btn-sm btn-danger">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

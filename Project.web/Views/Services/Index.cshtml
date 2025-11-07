@@ -1,0 +1,43 @@
+@model IEnumerable<ServiceViewModel>
+
+@{
+    ViewData["Title"] = "Hizmet Listesi";
+}
+
+<h1>Hizmetler</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Hizmet Ekle</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Hizmet Adı</th>
+            <th>Tür</th>
+            <th>Süre</th>
+            <th>Fiyat</th>
+            <th>Salon</th>
+            <th>Aktif</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var service in Model)
+        {
+            <tr>
+                <td>@service.Name</td>
+                <td>@service.ServiceType</td>
+                <td>@service.Duration.ToString(@"hh\:mm")</td>
+                <td>@service.Price.ToString("C2")</td>
+                <td>@service.GymName</td>
+                <td>@(service.IsActive ? "Evet" : "Hayır")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@service.ServiceId" class="btn btn-sm btn-info">Detay</a>
+                    <a asp-action="Edit" asp-route-id="@service.ServiceId" class="btn btn-sm btn-warning">Düzenle</a>
+                    <a asp-action="Delete" asp-route-id="@service.ServiceId" class="btn btn-sm btn-danger">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

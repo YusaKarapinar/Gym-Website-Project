@@ -1,0 +1,39 @@
+@model GymViewModel
+
+@{
+    ViewData["Title"] = "Yeni Salon Ekle";
+}
+
+<h1>Yeni Salon Ekle</h1>
+
+<form asp-action="Create">
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    
+    <div>
+        <label asp-for="Address"></label>
+        <input asp-for="Address" />
+        <span asp-validation-for="Address"></span>
+    </div>
+    
+    <div>
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" />
+        <span asp-validation-for="PhoneNumber"></span>
+    </div>
+    
+    <div>
+        <label>
+            <input asp-for="IsActive" type="checkbox" />
+            @Html.DisplayNameFor(m => m.IsActive)
+        </label>
+    </div>
+    
+    <div>
+        <input type="submit" value="Kaydet" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </div>
+</form>

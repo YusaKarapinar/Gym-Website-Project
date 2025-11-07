@@ -1,0 +1,72 @@
+@model GymViewModel
+
+@{
+    ViewData["Title"] = "Salon Detayı";
+}
+
+<h1>Salon Detayı</h1>
+
+<div>
+    <h4>@Model.Name</h4>
+    
+    <dl>
+        <dt>İsim</dt>
+        <dd>@Model.Name</dd>
+
+        <dt>Adres</dt>
+        <dd>@Model.Address</dd>
+
+        <dt>Telefon</dt>
+        <dd>@Model.PhoneNumber</dd>
+
+        <dt>Durum</dt>
+        <dd>@(Model.IsActive ? "Aktif" : "Pasif")</dd>
+
+        <dt>Oluşturma Tarihi</dt>
+        <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+
+        @if (Model.UpdatedAt.HasValue)
+        {
+            <dt>Güncellenme Tarihi</dt>
+            <dd>@Model.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</dd>
+        }
+    </dl>
+</div>
+
+@if (Model.Services != null && Model.Services.Any())
+{
+    <h5>Bu Salona Ait Hizmetler</h5>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Hizmet Adı</th>
+                <th>Tür</th>
+                <th>Fiyat</th>
+                <th>Süre</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var service in Model.Services)
+            {
+                <tr>
+                    <td>@service.Name</td>
+                    <td>@service.ServiceType</td>
+                    <td>@service.Price.ToString("C2")</td>
+                    <td>@service.Duration.ToString(@"hh\:mm")</td>
+                    <td>@(service.IsActive ? "Aktif" : "Pasif")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Bu salona henüz hizmet eklenmemiş.</p>
+}
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.GymId" class="btn btn-warning">Düzenle</a>
+    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+</div>

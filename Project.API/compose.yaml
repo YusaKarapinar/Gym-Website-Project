@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # 1. POSTGRESQL VERITABANI SERVISI (Sizin Mevcut İmajınız Kullanılıyor)
+  postgresdb:
+    image: postgres:14.19-alpine3.21
+    container_name: project_postgres_db
+    restart: always
+    environment:
+      # Bu ayarlar, image'inize göre doğru olmalıdır. Genellikle standarttır.
+      POSTGRES_USER: projectuser 
+      POSTGRES_PASSWORD: 8086 
+      POSTGRES_DB: projectdb 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "projectuser", "-d", "projectdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. REDIS ÖNBELLEK SERVISI (Gerekiyorsa)
+  redis:
+    image: redis:7-alpine
+    container_name: project_redis
+    restart: always
+
+  # 3. ASP.NET CORE API SERVISI
+  server:
+    build:
+      context: .
+      target: final
+    container_name: project_api_server
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgresdb;Port=5432;Database=projectdb;Username=projectuser;Password=8086"
+      ConnectionStrings__Redis: "redis" 
+      AppSettings__Token: "5676b47ff209d3e9eb1518ccc3144cbb"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  postgres_data:

@@ -1,0 +1,41 @@
+@model GymViewModel
+
+@{
+    ViewData["Title"] = "Salon Düzenle";
+}
+
+<h1>Salon Düzenle</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="GymId" />
+    
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    
+    <div>
+        <label asp-for="Address"></label>
+        <input asp-for="Address" />
+        <span asp-validation-for="Address"></span>
+    </div>
+    
+    <div>
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" />
+        <span asp-validation-for="PhoneNumber"></span>
+    </div>
+    
+    <div>
+        <label>
+            <input asp-for="IsActive" type="checkbox" />
+            @Html.DisplayNameFor(m => m.IsActive)
+        </label>
+    </div>
+    
+    <div>
+        <input type="submit" value="Güncelle" class="btn btn-warning" />
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </div>
+</form>

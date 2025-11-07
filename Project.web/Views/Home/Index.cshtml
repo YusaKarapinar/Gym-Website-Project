@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 350px;">
+    <div class="container text-white">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-dumbbell"></i> FitTrack Gym
+        </h1>
+        <p class="lead mb-4">Track your workouts and achieve your fitness goals</p>
+        @if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <a class="btn btn-light btn-lg" asp-controller="Workouts" asp-action="Index">
+                <i class="fas fa-running"></i> My Workouts
+            </a>
+        }
+        else
+        {
+            <a class="btn btn-warning btn-lg me-2" asp-controller="Users" asp-action="Register">
+                Get Started
+            </a>
+            <a class="btn btn-light btn-lg" asp-controller="Users" asp-action="Login">
+                Login
+            </a>
+        }
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+            <h5>Track Progress</h5>
+            <p class="text-muted">Monitor your workout statistics</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-list fa-3x text-success mb-3"></i>
+            <h5>Custom Workouts</h5>
+            <p class="text-muted">Create personalized plans</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+            <h5>Achieve Goals</h5>
+            <p class="text-muted">Reach your fitness targets</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,187 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Project.web.Models;
+
+namespace Project.web.Controllers
+{
+    public class UsersController : Controller
+    {
+        private readonly ILogger<UsersController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public UsersController(ILogger<UsersController> logger, IHttpClientFactory httpClientFactory)
+        {
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
+        }
+
+        private HttpClient GetAuthenticatedHttpClient()
+        {
+            var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+            
+            // Token'ı claims'den al
+            var token = User.FindFirst("Token")?.Value;
+            if (!string.IsNullOrEmpty(token))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = 
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
+            
+            return httpClient;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+
+            var loginResponse = await httpClient.PostAsJsonAsync("api/Users/login", model);
+            if (!loginResponse.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, $"Invalid login attempt. {loginResponse.StatusCode}");
+                return View(model);
+            }
+
+            var result = await loginResponse.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            if (result == null)
+            {
+                ModelState.AddModelError(string.Empty, "No response received from server.");
+                return View(model);
+            }
+
+            // Hem büyük hem küçük harf dene (API "Token" döndürüyor)
+            string? token = null;
+            if (result.ContainsKey("Token"))
+            {
+                token = result["Token"]?.ToString();
+            }
+            else if (result.ContainsKey("token"))
+            {
+                token = result["token"]?.ToString();
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                ModelState.AddModelError(string.Empty, "No token received from server.");
+                return View(model);
+            }
+            
+            // JWT token'ı parse et
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            
+            // Token'daki tüm claim'leri al
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, model.Username),
+                new Claim("Token", token) // Token'ı claim olarak sakla
+            };
+            
+            // JWT'den gelen claim'leri ekle (özellikle rol bilgisi)
+            foreach (var claim in jwtToken.Claims)
+            {
+                _logger.LogInformation($"JWT Claim: Type={claim.Type}, Value={claim.Value}");
+                
+                // Role claim'ini ekle
+                if (claim.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" || 
+                    claim.Type == ClaimTypes.Role ||
+                    claim.Type == "role")
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, claim.Value));
+                    _logger.LogInformation($"Added Role Claim: {claim.Value}");
+                }
+                // Diğer önemli claim'leri de ekle
+                else if (claim.Type == "nameid" || claim.Type == ClaimTypes.NameIdentifier)
+                {
+                    claims.Add(new Claim(ClaimTypes.NameIdentifier, claim.Value));
+                }
+                else if (claim.Type == "email" || claim.Type == ClaimTypes.Email)
+                {
+                    claims.Add(new Claim(ClaimTypes.Email, claim.Value));
+                }
+            }
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            var cookieExpiration = model.RememberMe 
+                ? DateTimeOffset.UtcNow.AddDays(30) 
+                : DateTimeOffset.UtcNow.AddHours(2);
+                
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = model.RememberMe,
+                ExpiresUtc = cookieExpiration
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+
+            var registerResponse = await httpClient.PostAsJsonAsync("api/Users/register", model);
+            if (!registerResponse.IsSuccessStatusCode)
+            {
+                var errorContent = await registerResponse.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, $"Registration failed. {registerResponse.StatusCode}: {errorContent}");
+                return View(model);
+            }
+
+            return RedirectToAction("Login", "Users");
+        }
+        public async Task<IActionResult> Logout()
+        {
+            // Session'ı temizle
+            HttpContext.Session.Clear();
+            
+            // ASP.NET Core Authentication'dan çıkış yap (cookie otomatik silinir)
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            return RedirectToAction("Login", "Users");
+        }
+    }
+}

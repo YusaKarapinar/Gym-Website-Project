@@ -1,0 +1,28 @@
+@model GymViewModel
+
+@{
+    ViewData["Title"] = "Salon Sil";
+}
+
+<h1>Salon Sil</h1>
+
+<h3>Bu salonu silmek istediğinize emin misiniz?</h3>
+
+<div>
+    <dl>
+        <dt>İsim</dt>
+        <dd>@Model.Name</dd>
+        
+        <dt>Adres</dt>
+        <dd>@Model.Address</dd>
+        
+        <dt>Telefon</dt>
+        <dd>@Model.PhoneNumber</dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="GymId" />
+        <input type="submit" value="Sil" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
