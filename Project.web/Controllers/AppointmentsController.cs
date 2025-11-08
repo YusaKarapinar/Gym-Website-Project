@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 
 namespace Project.web.Controllers
 {
-    [Authorize(Roles = "Admin,Trainer")]
+    [Authorize] // Tüm giriş yapmış kullanıcılar erişebilir
     public class AppointmentsController : Controller
     {
 
@@ -33,7 +33,7 @@ namespace Project.web.Controllers
             return httpClient;
         }
 
-        // GET: Appointments
+        // GET: Appointments - Herkes randevularını görebilir
         public async Task<IActionResult> Index()
         {
             var httpClient = GetAuthenticatedHttpClient();
@@ -50,7 +50,8 @@ namespace Project.web.Controllers
             return View(appointments ?? new List<AppointmentViewModel>());
         }
 
-        // GET: Appointments/Create
+        // GET: Appointments/Create - Sadece Admin ve Trainer
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<IActionResult> Create()
         {
             var httpClient = GetAuthenticatedHttpClient();
@@ -110,9 +111,10 @@ namespace Project.web.Controllers
             return View();
         }
 
-        // POST: Appointments/Create
+        // POST: Appointments/Create - Sadece Admin ve Trainer
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<IActionResult> Create(AppointmentViewModel model)
         {
             var httpClient = GetAuthenticatedHttpClient();
@@ -175,9 +177,10 @@ namespace Project.web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Appointments/Delete/5
+        // POST: Appointments/Delete/5 - Sadece Admin ve Trainer
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<IActionResult> Delete(int id)
         {
             var httpClient = GetAuthenticatedHttpClient();

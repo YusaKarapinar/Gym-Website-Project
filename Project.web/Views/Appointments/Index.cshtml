@@ -14,11 +14,14 @@
 </div>
 
 <div class="container">
-    <div class="mb-4">
-        <a asp-action="Create" class="btn btn-primary btn-lg">
-            <i class="fas fa-plus"></i> Yeni Randevu Oluştur
-        </a>
-    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("Trainer"))
+    {
+        <div class="mb-4">
+            <a asp-action="Create" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus"></i> Yeni Randevu Oluştur
+            </a>
+        </div>
+    }
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -71,12 +74,19 @@
                                 </td>
                                 <td>@appointment.Price.ToString("C2")</td>
                                 <td class="text-center">
-                                    <form asp-action="Delete" asp-route-id="@appointment.AppointmentId" method="post" style="display:inline;">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bu randevuyu silmek istediğinize emin misiniz?')">
-                                            <i class="fas fa-trash"></i> Sil
-                                        </button>
-                                    </form>
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Trainer"))
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@appointment.AppointmentId" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bu randevuyu silmek istediğinize emin misiniz?')">
+                                                <i class="fas fa-trash"></i> Sil
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
                                 </td>
                             </tr>
                         }
