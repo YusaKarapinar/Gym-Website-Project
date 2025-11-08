@@ -4,36 +4,64 @@
     ViewData["Title"] = "Yeni Salon Ekle";
 }
 
-<h1>Yeni Salon Ekle</h1>
+<div class="text-center py-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-white">
+        <h1 class="display-5 fw-bold mb-2">
+            <i class="fas fa-plus-circle"></i> Yeni Salon Ekle
+        </h1>
+    </div>
+</div>
 
-<form asp-action="Create">
-    <div>
-        <label asp-for="Name"></label>
-        <input asp-for="Name" />
-        <span asp-validation-for="Name"></span>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">
+                                <i class="fas fa-tag"></i> Salon Adı
+                            </label>
+                            <input asp-for="Name" class="form-control" placeholder="Salon adını girin" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">
+                                <i class="fas fa-map-marker-alt"></i> Adres
+                            </label>
+                            <input asp-for="Address" class="form-control" placeholder="Adres girin" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">
+                                <i class="fas fa-phone"></i> Telefon
+                            </label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="Telefon numarası girin" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    <i class="fas fa-check-circle"></i> @Html.DisplayNameFor(m => m.IsActive)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> İptal
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div>
-        <label asp-for="Address"></label>
-        <input asp-for="Address" />
-        <span asp-validation-for="Address"></span>
-    </div>
-    
-    <div>
-        <label asp-for="PhoneNumber"></label>
-        <input asp-for="PhoneNumber" />
-        <span asp-validation-for="PhoneNumber"></span>
-    </div>
-    
-    <div>
-        <label>
-            <input asp-for="IsActive" type="checkbox" />
-            @Html.DisplayNameFor(m => m.IsActive)
-        </label>
-    </div>
-    
-    <div>
-        <input type="submit" value="Kaydet" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">İptal</a>
-    </div>
-</form>
+</div>

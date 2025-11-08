@@ -1,0 +1,264 @@
+@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="text-center py-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-white">
+        <h1 class="display-5 fw-bold mb-2">
+            <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+        </h1>
+        <p class="lead mb-0">Tüm sistem verilerini buradan yönetin</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body text-center">
+                    <i class="fas fa-building fa-3x mb-3"></i>
+                    <h3 class="fw-bold">@Model.TotalGyms</h3>
+                    <p class="mb-1">Toplam Salon</p>
+                    <small>@Model.ActiveGyms Aktif</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card-body text-center">
+                    <i class="fas fa-concierge-bell fa-3x mb-3"></i>
+                    <h3 class="fw-bold">@Model.TotalServices</h3>
+                    <p class="mb-1">Toplam Hizmet</p>
+                    <small>@Model.ActiveServices Aktif</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h3 class="fw-bold">@Model.TotalUsers</h3>
+                    <p class="mb-1">Toplam Kullanıcı</p>
+                    <small>@Model.TotalTrainers Eğitmen, @Model.TotalMembers Üye</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-3x mb-3"></i>
+                    <h3 class="fw-bold">@Model.TotalAppointments</h3>
+                    <p class="mb-1">Toplam Randevu</p>
+                    <small>@Model.PendingAppointments Beklemede</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gyms Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h5 class="mb-0">
+                <i class="fas fa-building"></i> Spor Salonları
+                <a asp-controller="Gyms" asp-action="Index" class="btn btn-light btn-sm float-end">
+                    Tümünü Gör <i class="fas fa-arrow-right"></i>
+                </a>
+            </h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>İsim</th>
+                        <th>Adres</th>
+                        <th>Telefon</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var gym in Model.Gyms.Take(5))
+                    {
+                        <tr>
+                            <td class="fw-bold">@gym.Name</td>
+                            <td>@gym.Address</td>
+                            <td>@gym.PhoneNumber</td>
+                            <td>
+                                @if (gym.IsActive)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Services Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h5 class="mb-0">
+                <i class="fas fa-concierge-bell"></i> Hizmetler
+                <a asp-controller="Services" asp-action="Index" class="btn btn-light btn-sm float-end">
+                    Tümünü Gör <i class="fas fa-arrow-right"></i>
+                </a>
+            </h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Hizmet Adı</th>
+                        <th>Tür</th>
+                        <th>Salon</th>
+                        <th>Fiyat</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var service in Model.Services.Take(5))
+                    {
+                        <tr>
+                            <td class="fw-bold">@service.Name</td>
+                            <td>@service.ServiceType</td>
+                            <td>@service.GymName</td>
+                            <td>@service.Price.ToString("C2")</td>
+                            <td>
+                                @if (service.IsActive)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h5 class="mb-0">
+                <i class="fas fa-users"></i> Kullanıcılar
+            </h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kullanıcı Adı</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Spor Salonu</th>
+                        <th>Bio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Users.Take(10))
+                    {
+                        <tr>
+                            <td class="fw-bold">@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                @switch (user.Role)
+                                {
+                                    case "Admin":
+                                        <span class="badge bg-danger">Admin</span>
+                                        break;
+                                    case "Trainer":
+                                        <span class="badge bg-warning">Eğitmen</span>
+                                        break;
+                                    case "Member":
+                                        <span class="badge bg-info">Üye</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@user.Role</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@(string.IsNullOrEmpty(user.GymName) ? "-" : user.GymName)</td>
+                            <td>@(string.IsNullOrEmpty(user.Bio) ? "-" : user.Bio)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Appointments Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-alt"></i> Son Randevular
+                <a asp-controller="Appointments" asp-action="Index" class="btn btn-light btn-sm float-end">
+                    Tümünü Gör <i class="fas fa-arrow-right"></i>
+                </a>
+            </h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Saat</th>
+                        <th>Üye</th>
+                        <th>Eğitmen</th>
+                        <th>Hizmet</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var appointment in Model.Appointments.OrderByDescending(a => a.Date).Take(10))
+                    {
+                        <tr>
+                            <td>@appointment.Date.ToString("dd.MM.yyyy")</td>
+                            <td>@appointment.Time.ToString(@"hh\:mm")</td>
+                            <td>@appointment.UserName</td>
+                            <td>@appointment.TrainerName</td>
+                            <td>@appointment.ServiceName</td>
+                            <td>
+                                @switch (appointment.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-warning">Beklemede</span>
+                                        break;
+                                    case "Approved":
+                                        <span class="badge bg-success">Onaylandı</span>
+                                        break;
+                                    case "Rejected":
+                                        <span class="badge bg-danger">Reddedildi</span>
+                                        break;
+                                    case "Canceled":
+                                        <span class="badge bg-secondary">İptal</span>
+                                        break;
+                                    case "Completed":
+                                        <span class="badge bg-info">Tamamlandı</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-light text-dark">@appointment.Status</span>
+                                        break;
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -12,5 +12,7 @@ namespace Project.API.Models
         public Gym? Gym { get; set; }
         public string? Bio { get; set; }
         
+        // Navigation properties
+        public ICollection<IdentityUserRole<int>> UserRoles { get; set; } = new List<IdentityUserRole<int>>();
     }
 }

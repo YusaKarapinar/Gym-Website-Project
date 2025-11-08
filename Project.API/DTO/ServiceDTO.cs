@@ -16,6 +16,7 @@ namespace Project.API.DTO
         public decimal Price { get; set; }
         public TimeSpan Duration { get; set; }
         public int GymId { get; set; }
+        public string? GymName { get; set; }
         public bool IsActive { get; set; }
     }
 }

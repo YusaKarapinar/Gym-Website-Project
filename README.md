@@ -60,14 +60,14 @@ docker-compose up --build -d
 ```
 
 3. Access the applications:
-   - Web App: http://localhost:8080
-   - API: http://localhost:8081
+   - Web App: http://localhost:5002
+   - API: http://localhost:8080
 
 ### Services
 
 The Docker Compose setup includes:
-- **project_web_server**: Frontend MVC application (port 8080)
-- **project_api_server**: Backend API (port 8081)
+- **project_web_server**: Frontend MVC application (port 5002)
+- **project_api_server**: Backend API (port 8080)
 - **project_postgres_db**: PostgreSQL database (port 5432)
 - **project_redis**: Redis cache (port 6379)
 

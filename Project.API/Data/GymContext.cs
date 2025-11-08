@@ -30,6 +30,18 @@ namespace Project.API.Data
                 .HasIndex(u => u.NormalizedEmail)
                 .IsUnique(true);
 
+            // Configure UserRoles relationships
+            builder.Entity<AppUser>()
+                .HasMany(u => u.UserRoles)
+                .WithOne()
+                .HasForeignKey(ur => ur.UserId)
+                .IsRequired();
+
+            builder.Entity<AppRole>()
+                .HasMany(r => r.UserRoles)
+                .WithOne()
+                .HasForeignKey(ur => ur.RoleId)
+                .IsRequired();
 
             // Seed data
             builder.Entity<AppRole>().HasData(

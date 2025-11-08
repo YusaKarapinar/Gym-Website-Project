@@ -3,39 +3,106 @@
     ViewData["Title"] = "Register";
 }
 
-<h2>Register</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
+                        <h2 class="fw-bold">Create Account</h2>
+                        <p class="text-muted">Join our fitness community today</p>
+                    </div>
 
-<form asp-action="Register" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
+                    <form asp-action="Register" method="post">
+                        @if(ViewData.ModelState.ErrorCount > 0){
+                            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                        }
 
-    <div class="form-group">
-        <label asp-for="UserName">Username</label>
-        <input asp-for="UserName" class="form-control" />
-        <span asp-validation-for="UserName" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email">Email</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Password">Password</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Role">Role</label>
-        <div>
-            <input asp-for="Role" type="radio" value="Admin" /> Admin
-            <input asp-for="Role" type="radio" value="Trainer" /> Trainer
-            <input asp-for="Role" type="radio" value="Member" /> Member
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label fw-bold">
+                                <i class="fas fa-user"></i> Username
+                            </label>
+                            <input asp-for="UserName" class="form-control" placeholder="Choose a username" />
+                            <span asp-validation-for="UserName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">
+                                <i class="fas fa-envelope"></i> Email
+                            </label>
+                            <input asp-for="Email" class="form-control" placeholder="your@email.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label fw-bold">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Create a strong password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user-tag"></i> Role
+                            </label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input asp-for="Role" type="radio" value="Admin" class="form-check-input" id="roleAdmin" />
+                                    <label class="form-check-label" for="roleAdmin">Admin</label>
+                                </div>
+                                <div class="form-check">
+                                    <input asp-for="Role" type="radio" value="Trainer" class="form-check-input" id="roleTrainer" />
+                                    <label class="form-check-label" for="roleTrainer">Trainer</label>
+                                </div>
+                                <div class="form-check">
+                                    <input asp-for="Role" type="radio" value="Member" class="form-check-input" id="roleMember" checked />
+                                    <label class="form-check-label" for="roleMember">Member</label>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="GymId" class="form-label fw-bold">
+                                <i class="fas fa-building"></i> Spor Salonu (Opsiyonel)
+                            </label>
+                            <select asp-for="GymId" class="form-select">
+                                <option value="">-- Salon Seçin (İsteğe Bağlı) --</option>
+                                @if (ViewBag.Gyms != null)
+                                {
+                                    var gyms = ViewBag.Gyms as IEnumerable<GymViewModel>;
+                                    if (gyms != null)
+                                    {
+                                        @foreach (var gym in gyms)
+                                        {
+                                            <option value="@gym.GymId">@gym.Name - @gym.Address</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="GymId" class="text-danger small"></span>
+                            <small class="text-muted">Trainer ise kayıt olduğunuz salonu seçin</small>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Register
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="mb-0">Already have an account? 
+                                <a asp-action="Login" class="fw-bold text-decoration-none">Login</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <span asp-validation-for="Role" class="text-danger"></span>
     </div>
-
-
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
+</div>
 
 @section Scripts {
     @{

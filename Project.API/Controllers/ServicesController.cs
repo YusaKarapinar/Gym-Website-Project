@@ -47,6 +47,7 @@ namespace Project.API.Controllers
                         Duration = s.Duration,
                         Price = s.Price,
                         GymId = s.GymId,
+                        GymName = s.Gym.Name,
                         IsActive = s.IsActive
                     })
                     .ToListAsync();
@@ -64,6 +65,7 @@ namespace Project.API.Controllers
                    Duration = s.Duration,
                    Price = s.Price,
                    GymId = s.GymId,
+                   GymName = s.Gym.Name,
                    IsActive = s.IsActive
                })
                .ToListAsync();
@@ -101,6 +103,7 @@ namespace Project.API.Controllers
                     Duration = s.Duration,
                     Price = s.Price,
                     GymId = s.GymId,
+                    GymName = s.Gym.Name,
                     IsActive = s.IsActive
                 })
                 .FirstOrDefaultAsync();
@@ -111,6 +114,34 @@ namespace Project.API.Controllers
             }
             
             return Ok(service);
+        }
+        
+        [HttpGet("bygym/{gymId}")]
+        public async Task<IActionResult> GetServicesByGymId(int gymId)
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            var services = await _context.Services
+                .Include(s => s.Gym)
+                .Where(s => s.GymId == gymId && s.IsActive == true)
+                .Select(s => new ServiceDTO
+                {
+                    ServiceId = s.ServiceId,
+                    Name = s.Name,
+                    Description = s.Description,
+                    ServiceType = s.ServiceType,
+                    Duration = s.Duration,
+                    Price = s.Price,
+                    GymId = s.GymId,
+                    GymName = s.Gym.Name,
+                    IsActive = s.IsActive
+                })
+                .ToListAsync();
+
+            return Ok(services);
         }
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -137,12 +168,27 @@ namespace Project.API.Controllers
                 Duration = serviceDto.Duration,
                 Price = serviceDto.Price,
                 GymId = serviceDto.GymId,
-                IsActive = serviceDto.IsActive
+                IsActive = serviceDto.IsActive,
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetServiceById), new { id = service.ServiceId }, service);
+            
+            var createdServiceDto = new ServiceDTO
+            {
+                ServiceId = service.ServiceId,
+                Name = service.Name,
+                Description = service.Description,
+                ServiceType = service.ServiceType,
+                Duration = service.Duration,
+                Price = service.Price,
+                GymId = service.GymId,
+                GymName = (await _context.Gyms.FindAsync(service.GymId))?.Name,
+                IsActive = service.IsActive
+            };
+            
+            return CreatedAtAction(nameof(GetServiceById), new { id = service.ServiceId }, createdServiceDto);
         }
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
@@ -168,8 +214,20 @@ namespace Project.API.Controllers
             service.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             
-            // 200 OK ile güncellenmiş veriyi döndür
-            return Ok(service);
+            var updatedServiceDto = new ServiceDTO
+            {
+                ServiceId = service.ServiceId,
+                Name = service.Name,
+                Description = service.Description,
+                ServiceType = service.ServiceType,
+                Duration = service.Duration,
+                Price = service.Price,
+                GymId = service.GymId,
+                GymName = (await _context.Gyms.FindAsync(service.GymId))?.Name,
+                IsActive = service.IsActive
+            };
+            
+            return Ok(updatedServiceDto);
         }
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]

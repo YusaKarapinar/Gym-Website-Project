@@ -4,40 +4,70 @@
     ViewData["Title"] = "Hizmet Listesi";
 }
 
-<h1>Hizmetler</h1>
+<div class="text-center py-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-white">
+        <h1 class="display-5 fw-bold mb-2">
+            <i class="fas fa-concierge-bell"></i> Hizmetler
+        </h1>
+        <p class="lead mb-3">Tüm salon hizmetlerini yönetin</p>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Yeni Hizmet Ekle</a>
-</p>
+<div class="container">
+    <div class="mb-4">
+        <a asp-action="Create" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus"></i> Yeni Hizmet Ekle
+        </a>
+    </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Hizmet Adı</th>
-            <th>Tür</th>
-            <th>Süre</th>
-            <th>Fiyat</th>
-            <th>Salon</th>
-            <th>Aktif</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var service in Model)
-        {
-            <tr>
-                <td>@service.Name</td>
-                <td>@service.ServiceType</td>
-                <td>@service.Duration.ToString(@"hh\:mm")</td>
-                <td>@service.Price.ToString("C2")</td>
-                <td>@service.GymName</td>
-                <td>@(service.IsActive ? "Evet" : "Hayır")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@service.ServiceId" class="btn btn-sm btn-info">Detay</a>
-                    <a asp-action="Edit" asp-route-id="@service.ServiceId" class="btn btn-sm btn-warning">Düzenle</a>
-                    <a asp-action="Delete" asp-route-id="@service.ServiceId" class="btn btn-sm btn-danger">Sil</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="fas fa-tag"></i> Hizmet Adı</th>
+                        <th><i class="fas fa-list"></i> Tür</th>
+                        <th><i class="fas fa-clock"></i> Süre</th>
+                        <th><i class="fas fa-dollar-sign"></i> Fiyat</th>
+                        <th><i class="fas fa-building"></i> Salon</th>
+                        <th><i class="fas fa-check-circle"></i> Aktif</th>
+                        <th class="text-center"><i class="fas fa-cog"></i> İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var service in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@service.Name</td>
+                            <td>@service.ServiceType</td>
+                            <td>@service.Duration.ToString(@"hh\:mm")</td>
+                            <td>@service.Price.ToString("C2")</td>
+                            <td>@service.GymName</td>
+                            <td>
+                                @if (service.IsActive)
+                                {
+                                    <span class="badge bg-success">Evet</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Hayır</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@service.ServiceId" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> Detay
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@service.ServiceId" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@service.ServiceId" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Sil
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

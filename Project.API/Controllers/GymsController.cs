@@ -31,15 +31,38 @@ namespace Project.API.Controllers
             {
                 return Unauthorized();
             }
-            var gyms = new List<Gym>();
+
+            var gyms = new List<GymDTO>();
             if (User.IsInRole("Admin"))
             {
-
-                gyms = await _context.Gyms.ToListAsync();
+                gyms = await _context.Gyms
+                    .Select(g => new GymDTO
+                    {
+                        GymId = g.GymId,
+                        Name = g.Name,
+                        Address = g.Address,
+                        PhoneNumber = g.PhoneNumber,
+                        IsActive = g.IsActive,
+                        CreatedAt = g.CreatedAt,
+                        UpdatedAt = g.UpdatedAt
+                    })
+                    .ToListAsync();
             }
             else
             {
-                gyms = await _context.Gyms.Where(g => g.IsActive).ToListAsync();
+                gyms = await _context.Gyms
+                    .Where(g => g.IsActive)
+                    .Select(g => new GymDTO
+                    {
+                        GymId = g.GymId,
+                        Name = g.Name,
+                        Address = g.Address,
+                        PhoneNumber = g.PhoneNumber,
+                        IsActive = g.IsActive,
+                        CreatedAt = g.CreatedAt,
+                        UpdatedAt = g.UpdatedAt
+                    })
+                    .ToListAsync();
             }
             return Ok(gyms);
         }
@@ -50,10 +73,22 @@ namespace Project.API.Controllers
             {
                 return Unauthorized();
             }
-            Gym? gym;
+            GymDTO? gym;
             if (User.IsInRole("Admin"))
             {
-                gym = await _context.Gyms.FindAsync(id);
+                gym = await _context.Gyms
+                    .Where(g => g.GymId == id)
+                    .Select(g => new GymDTO
+                    {
+                        GymId = g.GymId,
+                        Name = g.Name,
+                        Address = g.Address,
+                        PhoneNumber = g.PhoneNumber,
+                        IsActive = g.IsActive,
+                        CreatedAt = g.CreatedAt,
+                        UpdatedAt = g.UpdatedAt
+                    })
+                    .FirstOrDefaultAsync();
                 if (gym == null)
                 {
                     return NotFound();
@@ -61,7 +96,19 @@ namespace Project.API.Controllers
             }
             else
             {
-                gym = await _context.Gyms.FirstOrDefaultAsync(g => g.GymId == id && g.IsActive);
+                gym = await _context.Gyms
+                    .Where(g => g.GymId == id && g.IsActive)
+                    .Select(g => new GymDTO
+                    {
+                        GymId = g.GymId,
+                        Name = g.Name,
+                        Address = g.Address,
+                        PhoneNumber = g.PhoneNumber,
+                        IsActive = g.IsActive,
+                        CreatedAt = g.CreatedAt,
+                        UpdatedAt = g.UpdatedAt
+                    })
+                    .FirstOrDefaultAsync();
                 if (gym == null)
                 {
                     return NotFound();
@@ -88,13 +135,25 @@ namespace Project.API.Controllers
                 Name = gymDto.Name,
                 Address = gymDto.Address,
                 PhoneNumber = gymDto.PhoneNumber,
-                IsActive = gymDto.IsActive
+                IsActive = gymDto.IsActive,
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Gyms.Add(gym);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetGymById), new { id = gym.GymId }, gym);
+            var createdGymDto = new GymDTO
+            {
+                GymId = gym.GymId,
+                Name = gym.Name,
+                Address = gym.Address,
+                PhoneNumber = gym.PhoneNumber,
+                IsActive = gym.IsActive,
+                CreatedAt = gym.CreatedAt,
+                UpdatedAt = gym.UpdatedAt
+            };
+
+            return CreatedAtAction(nameof(GetGymById), new { id = gym.GymId }, createdGymDto);
         }
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
@@ -117,11 +176,22 @@ namespace Project.API.Controllers
             existingGym.Name = gymDto.Name;
             existingGym.Address = gymDto.Address;
             existingGym.PhoneNumber = gymDto.PhoneNumber;
+            existingGym.IsActive = gymDto.IsActive;
             existingGym.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             
-            // 200 OK ile güncellenmiş veriyi döndür
-            return Ok(existingGym);
+            var updatedGymDto = new GymDTO
+            {
+                GymId = existingGym.GymId,
+                Name = existingGym.Name,
+                Address = existingGym.Address,
+                PhoneNumber = existingGym.PhoneNumber,
+                IsActive = existingGym.IsActive,
+                CreatedAt = existingGym.CreatedAt,
+                UpdatedAt = existingGym.UpdatedAt
+            };
+            
+            return Ok(updatedGymDto);
         }
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]

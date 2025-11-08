@@ -27,6 +27,11 @@ namespace Project.API.Models
         [ForeignKey("Service")]
         public int ServiceId { get; set; }
         public Service? Service { get; set; }
+        
+        [ForeignKey("Gym")]
+        public int GymId { get; set; }
+        public Gym? Gym { get; set; }
+        
         public string Status { get; set; } = AppointmentStatus.Pending;
 
         public decimal Price { get; set; }

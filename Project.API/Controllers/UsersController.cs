@@ -5,8 +5,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Project.API.Constants;
 using Project.API.DTO;
@@ -29,6 +31,33 @@ namespace Project.API.Controllers
             _configuration = configuration;
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin,Trainer")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _userManager.Users
+                .Include(u => u.Gym)
+                .ToListAsync();
+
+            var userDtos = new List<UserDTO>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userDtos.Add(new UserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName ?? "",
+                    Email = user.Email ?? "",
+                    Bio = user.Bio,
+                    Role = roles.FirstOrDefault() ?? "Member",
+                    GymId = user.GymId,
+                    GymName = user.Gym?.Name
+                });
+            }
+
+            return Ok(userDtos);
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDTO userDto)
         {
@@ -42,7 +71,8 @@ namespace Project.API.Controllers
             var user = new AppUser
             {
                 UserName = userDto.UserName,
-                Email = userDto.Email
+                Email = userDto.Email,
+                GymId = userDto.GymId
             };
             var result = await _userManager.CreateAsync(user, userDto.Password);
 

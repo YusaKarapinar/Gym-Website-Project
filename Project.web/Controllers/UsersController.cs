@@ -148,8 +148,18 @@ namespace Project.web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
+            var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+            
+            // Load gyms for dropdown
+            var gymsResponse = await httpClient.GetAsync("api/Gyms");
+            if (gymsResponse.IsSuccessStatusCode)
+            {
+                var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
+                ViewBag.Gyms = gyms;
+            }
+            
             return View();
         }
 
@@ -158,16 +168,35 @@ namespace Project.web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+                
+                // Reload gyms on error
+                var gymsResponse = await httpClient.GetAsync("api/Gyms");
+                if (gymsResponse.IsSuccessStatusCode)
+                {
+                    var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
+                    ViewBag.Gyms = gyms;
+                }
+                
                 return View(model);
             }
 
-            var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+            var httpClient2 = _httpClientFactory.CreateClient("ProjectApi");
 
-            var registerResponse = await httpClient.PostAsJsonAsync("api/Users/register", model);
+            var registerResponse = await httpClient2.PostAsJsonAsync("api/Users/register", model);
             if (!registerResponse.IsSuccessStatusCode)
             {
                 var errorContent = await registerResponse.Content.ReadAsStringAsync();
                 ModelState.AddModelError(string.Empty, $"Registration failed. {registerResponse.StatusCode}: {errorContent}");
+                
+                // Reload gyms on error
+                var gymsResponse = await httpClient2.GetAsync("api/Gyms");
+                if (gymsResponse.IsSuccessStatusCode)
+                {
+                    var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
+                    ViewBag.Gyms = gyms;
+                }
+                
                 return View(model);
             }
 

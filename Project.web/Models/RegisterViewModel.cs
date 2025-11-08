@@ -15,4 +15,8 @@ public class RegisterViewModel
 
     [Required]
     public string? Role { get; set; } 
+
+    public int? GymId { get; set; }
+
+
 }

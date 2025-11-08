@@ -193,5 +193,22 @@ namespace Project.web.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+        // GET: Services/GetByGym/5
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetByGym(int gymId)
+        {
+            var httpClient = GetAuthenticatedHttpClient();
+            var response = await httpClient.GetAsync($"api/Services/bygym/{gymId}");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                return Json(new List<ServiceViewModel>());
+            }
+            
+            var services = await response.Content.ReadFromJsonAsync<IEnumerable<ServiceViewModel>>();
+            return Json(services);
+        }
     }
 }

@@ -43,9 +43,16 @@
         <label asp-for="GymId"></label>
         <select asp-for="GymId">
             <option value="">-- Salon Seçin --</option>
-            @foreach (var gym in ViewBag.Gyms as IEnumerable<GymViewModel>)
+            @if (ViewBag.Gyms != null)
             {
-                <option value="@gym.GymId">@gym.Name</option>
+                var gyms = ViewBag.Gyms as IEnumerable<GymViewModel>;
+                if (gyms != null)
+                {
+                    @foreach (var gym in gyms)
+                    {
+                        <option value="@gym.GymId">@gym.Name</option>
+                    }
+                }
             }
         </select>
         <span asp-validation-for="GymId"></span>

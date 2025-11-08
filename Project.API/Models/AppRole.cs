@@ -10,5 +10,7 @@ namespace Project.API.Models
     {
         public string Description { get; set; } = string.Empty;
         
+        // Navigation properties
+        public ICollection<IdentityUserRole<int>> UserRoles { get; set; } = new List<IdentityUserRole<int>>();
     }
 }

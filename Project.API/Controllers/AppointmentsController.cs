@@ -35,10 +35,8 @@ namespace Project.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Request atan kullanıcının ID'sini al
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-            // Map DTO to domain model
             if (User.IsInRole("Trainer") && currentUserId != appointmentDto.TrainerId)
             {
                 return StatusCode(403, $"Sadece kendi randevularınızı oluşturabilirsiniz. Sizin ID'niz: {currentUserId}");
@@ -60,14 +58,13 @@ namespace Project.API.Controllers
             {
                 return Conflict("Üyenin bu tarihte ve saatte zaten bir randevusu var.");
             }
-            if (await _context.Appointments.AnyAsync(a => a.Date == appointmentDto.Date && a.Time == appointmentDto.Time && a.UserId == appointmentDto.TrainerId))
+
+            // Service'i çek ve price'ı al
+            var service = await _context.Services.FindAsync(appointmentDto.ServiceId);
+            if (service == null)
             {
-                return Conflict("trainerin Bu tarihte ve saatte zaten bir randevusu var.");
+                return BadRequest("Seçilen hizmet bulunamadı.");
             }
-            
-            
-
-
 
             var appointment = new Appointment
             {
@@ -75,13 +72,38 @@ namespace Project.API.Controllers
                 Time = appointmentDto.Time,
                 UserId = appointmentDto.UserId,
                 TrainerId = appointmentDto.TrainerId,
+                ServiceId = appointmentDto.ServiceId,
+                GymId = appointmentDto.GymId,
+                Status = AppointmentStatus.Pending, // Her zaman Pending
+                Price = service.Price, // Service'ten otomatik al
                 CreatedAt = DateTime.UtcNow
             };
 
             await _context.Appointments.AddAsync(appointment);
             await _context.SaveChangesAsync();
+            
+            var createdDto = await _context.Appointments
+                .Where(a => a.AppointmentId == appointment.AppointmentId)
+                .Select(a => new AppointmentDTO
+                {
+                    AppointmentId = a.AppointmentId,
+                    Date = a.Date,
+                    Time = a.Time,
+                    UserId = a.UserId,
+                    UserName = a.Member != null ? a.Member.UserName : null,
+                    TrainerId = a.TrainerId,
+                    TrainerName = a.Trainer != null ? a.Trainer.UserName : null,
+                    ServiceId = a.ServiceId,
+                    ServiceName = a.Service != null ? a.Service.Name : null,
+                    GymId = a.GymId,
+                    Status = a.Status,
+                    Price = a.Price,
+                    CreatedAt = a.CreatedAt
+                })
+                .FirstOrDefaultAsync();
+            
             _logger.LogInformation("Yeni randevu oluşturuldu: {@Appointment}", appointment);
-            return CreatedAtAction(nameof(CreateAppointment), new { id = appointment.AppointmentId }, appointment);
+            return CreatedAtAction(nameof(GetAppointments), new { id = appointment.AppointmentId }, createdDto);
         }
 
         [HttpPost("delete")]
@@ -114,15 +136,58 @@ namespace Project.API.Controllers
         {
             if(User.IsInRole("Trainer"))
             {
-                // Request atan kullanıcının ID'sini al
                 var trainerId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
                 var trainerAppointments = await _context.Appointments
+                    .Include(a => a.Member)
+                    .Include(a => a.Trainer)
+                    .Include(a => a.Service)
+                    .Include(a => a.Gym)
                     .Where(a => a.TrainerId == trainerId)
+                    .Select(a => new AppointmentDTO
+                    {
+                        AppointmentId = a.AppointmentId,
+                        Date = a.Date,
+                        Time = a.Time,
+                        UserId = a.UserId,
+                        UserName = a.Member != null ? a.Member.UserName : null,
+                        TrainerId = a.TrainerId,
+                        TrainerName = a.Trainer != null ? a.Trainer.UserName : null,
+                        ServiceId = a.ServiceId,
+                        ServiceName = a.Service != null ? a.Service.Name : null,
+                        GymId = a.GymId,
+                        GymName = a.Gym != null ? a.Gym.Name : null,
+                        Status = a.Status,
+                        Price = a.Price,
+                        CreatedAt = a.CreatedAt
+                    })
                     .ToListAsync();
 
                 return Ok(trainerAppointments);
             }
-            var appointments = await _context.Appointments.ToListAsync();
+            
+            var appointments = await _context.Appointments
+                .Include(a => a.Member)
+                .Include(a => a.Trainer)
+                .Include(a => a.Service)
+                .Include(a => a.Gym)
+                .Select(a => new AppointmentDTO
+                {
+                    AppointmentId = a.AppointmentId,
+                    Date = a.Date,
+                    Time = a.Time,
+                    UserId = a.UserId,
+                    UserName = a.Member != null ? a.Member.UserName : null,
+                    TrainerId = a.TrainerId,
+                    TrainerName = a.Trainer != null ? a.Trainer.UserName : null,
+                    ServiceId = a.ServiceId,
+                    ServiceName = a.Service != null ? a.Service.Name : null,
+                    GymId = a.GymId,
+                    GymName = a.Gym != null ? a.Gym.Name : null,
+                    Status = a.Status,
+                    Price = a.Price,
+                    CreatedAt = a.CreatedAt
+                })
+                .ToListAsync();
 
             return Ok(appointments);
         }
