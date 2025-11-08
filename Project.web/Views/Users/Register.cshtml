@@ -72,14 +72,22 @@
                                 <option value="">-- Salon Seçin (İsteğe Bağlı) --</option>
                                 @if (ViewBag.Gyms != null)
                                 {
-                                    var gyms = ViewBag.Gyms as IEnumerable<GymViewModel>;
-                                    if (gyms != null)
+                                    var gyms = ViewBag.Gyms as IEnumerable<Project.web.Models.GymViewModel>;
+                                    if (gyms != null && gyms.Any())
                                     {
-                                        @foreach (var gym in gyms)
+                                        foreach (var gym in gyms)
                                         {
                                             <option value="@gym.GymId">@gym.Name - @gym.Address</option>
                                         }
                                     }
+                                    else
+                                    {
+                                        <option disabled>Salon bulunamadı</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option disabled>Salon listesi yüklenemedi</option>
                                 }
                             </select>
                             <span asp-validation-for="GymId" class="text-danger small"></span>

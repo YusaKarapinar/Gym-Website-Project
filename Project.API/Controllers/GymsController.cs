@@ -25,15 +25,13 @@ namespace Project.API.Controllers
             _context = context;
         }
         [HttpGet]
+        [AllowAnonymous]  // Register sayfası için gym listesi herkese açık
         public async Task<IActionResult> GetGyms()
         {
-            if (User.Identity == null || !User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
-
             var gyms = new List<GymDTO>();
-            if (User.IsInRole("Admin"))
+            
+            // Eğer kullanıcı giriş yapmışsa ve Admin ise tüm gymler, değilse sadece aktif olanlar
+            if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
             {
                 gyms = await _context.Gyms
                     .Select(g => new GymDTO
@@ -50,6 +48,7 @@ namespace Project.API.Controllers
             }
             else
             {
+                // Giriş yapmamış kullanıcılar veya normal kullanıcılar sadece aktif gymler görebilir
                 gyms = await _context.Gyms
                     .Where(g => g.IsActive)
                     .Select(g => new GymDTO

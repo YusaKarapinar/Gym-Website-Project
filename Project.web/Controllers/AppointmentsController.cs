@@ -87,6 +87,7 @@ namespace Project.web.Controllers
             {
                 var currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
                 var allUsersResponse = await httpClient.GetAsync("api/Users");
+                
                 if (allUsersResponse.IsSuccessStatusCode)
                 {
                     var allUsers = await allUsersResponse.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>();

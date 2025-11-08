@@ -150,14 +150,28 @@ namespace Project.web.Controllers
         [HttpGet]
         public async Task<IActionResult> Register()
         {
-            var httpClient = _httpClientFactory.CreateClient("ProjectApi");
-            
-            // Load gyms for dropdown
-            var gymsResponse = await httpClient.GetAsync("api/Gyms");
-            if (gymsResponse.IsSuccessStatusCode)
+            try
             {
-                var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
-                ViewBag.Gyms = gyms;
+                var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+                
+                // Load gyms for dropdown
+                var gymsResponse = await httpClient.GetAsync("api/Gyms");
+                if (gymsResponse.IsSuccessStatusCode)
+                {
+                    var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
+                    ViewBag.Gyms = gyms;
+                    _logger.LogInformation($"Loaded {gyms?.Count() ?? 0} gyms successfully");
+                }
+                else
+                {
+                    _logger.LogWarning($"Failed to load gyms: {gymsResponse.StatusCode}");
+                    ViewBag.Gyms = new List<GymViewModel>();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading gyms for registration");
+                ViewBag.Gyms = new List<GymViewModel>();
             }
             
             return View();
@@ -168,39 +182,91 @@ namespace Project.web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var httpClient = _httpClientFactory.CreateClient("ProjectApi");
-                
-                // Reload gyms on error
-                var gymsResponse = await httpClient.GetAsync("api/Gyms");
-                if (gymsResponse.IsSuccessStatusCode)
+                try
                 {
-                    var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
-                    ViewBag.Gyms = gyms;
+                    var httpClient = _httpClientFactory.CreateClient("ProjectApi");
+                    
+                    // Reload gyms on error
+                    var gymsResponse = await httpClient.GetAsync("api/Gyms");
+                    if (gymsResponse.IsSuccessStatusCode)
+                    {
+                        var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
+                        ViewBag.Gyms = gyms;
+                    }
+                    else
+                    {
+                        ViewBag.Gyms = new List<GymViewModel>();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error reloading gyms");
+                    ViewBag.Gyms = new List<GymViewModel>();
                 }
                 
                 return View(model);
             }
 
-            var httpClient2 = _httpClientFactory.CreateClient("ProjectApi");
-
-            var registerResponse = await httpClient2.PostAsJsonAsync("api/Users/register", model);
-            if (!registerResponse.IsSuccessStatusCode)
+            try
             {
-                var errorContent = await registerResponse.Content.ReadAsStringAsync();
-                ModelState.AddModelError(string.Empty, $"Registration failed. {registerResponse.StatusCode}: {errorContent}");
-                
-                // Reload gyms on error
-                var gymsResponse = await httpClient2.GetAsync("api/Gyms");
-                if (gymsResponse.IsSuccessStatusCode)
+                var httpClient2 = _httpClientFactory.CreateClient("ProjectApi");
+
+                var registerResponse = await httpClient2.PostAsJsonAsync("api/Users/register", model);
+                if (!registerResponse.IsSuccessStatusCode)
                 {
-                    var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
-                    ViewBag.Gyms = gyms;
+                    var errorContent = await registerResponse.Content.ReadAsStringAsync();
+                    ModelState.AddModelError(string.Empty, $"Registration failed. {registerResponse.StatusCode}: {errorContent}");
+                    
+                    // Reload gyms on error
+                    try
+                    {
+                        var gymsResponse = await httpClient2.GetAsync("api/Gyms");
+                        if (gymsResponse.IsSuccessStatusCode)
+                        {
+                            var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
+                            ViewBag.Gyms = gyms;
+                        }
+                        else
+                        {
+                            ViewBag.Gyms = new List<GymViewModel>();
+                        }
+                    }
+                    catch
+                    {
+                        ViewBag.Gyms = new List<GymViewModel>();
+                    }
+                    
+                    return View(model);
+                }
+
+                return RedirectToAction("Login", "Users");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during registration");
+                ModelState.AddModelError(string.Empty, "Registration failed. Please try again.");
+                
+                try
+                {
+                    var httpClient3 = _httpClientFactory.CreateClient("ProjectApi");
+                    var gymsResponse = await httpClient3.GetAsync("api/Gyms");
+                    if (gymsResponse.IsSuccessStatusCode)
+                    {
+                        var gyms = await gymsResponse.Content.ReadFromJsonAsync<IEnumerable<GymViewModel>>();
+                        ViewBag.Gyms = gyms;
+                    }
+                    else
+                    {
+                        ViewBag.Gyms = new List<GymViewModel>();
+                    }
+                }
+                catch
+                {
+                    ViewBag.Gyms = new List<GymViewModel>();
                 }
                 
                 return View(model);
             }
-
-            return RedirectToAction("Login", "Users");
         }
         public async Task<IActionResult> Logout()
         {
