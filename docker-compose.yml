@@ -1,0 +1,84 @@
+services:
+  # 1. POSTGRESQL VERITABANI SERVISI
+  postgresdb:
+    image: postgres:14.19-alpine3.21
+    container_name: project_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-projectuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-8086}
+      POSTGRES_DB: ${DB_NAME:-projectdb} 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "projectuser", "-d", "projectdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project_network
+# 2. REDIS ÖNBELLEK SERVISI
+  redis:
+    image: redis:7-alpine
+    container_name: project_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"] # Şifre olmadığı için -a parametresine gerek yok
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project_network
+
+  # 3. ASP.NET CORE API SERVISI
+  api:
+    build:
+      context: ./Project.API
+      target: final
+    container_name: project_api_server
+    ports:
+      - "0.0.0.0:8080:8080"
+    restart: always
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgresdb;Port=5432;Database=${DB_NAME:-projectdb};Username=${DB_USER:-projectuser};Password=${DB_PASSWORD:-8086}"
+      # AŞAĞIDAKİ SATIR GÜNCELLENDİ (Sadece sunucu adı ve port):
+      ConnectionStrings__Redis: "redis:6379"
+      AppSettings__Token: ${JWT_SECRET:-5676b47ff209d3e9eb1518ccc3144cbb}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENV:-Development}
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - project_network
+
+  # 4. ASP.NET CORE WEB SERVISI
+  web:
+    build:
+      context: ./Project.web
+      target: final
+    container_name: project_web_server
+    ports:
+      - "0.0.0.0:5002:8080"
+    restart: always
+    environment:
+      ApiSettings__ProjectApiBaseUrl: "http://api:8080"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENV:-Development}
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+    depends_on:
+      - api
+    networks:
+      - project_network
+
+networks:
+  project_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

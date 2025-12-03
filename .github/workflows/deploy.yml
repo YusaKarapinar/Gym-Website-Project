@@ -1,0 +1,46 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd ~/projects/gym-website
+          git pull origin main
+          docker-compose --env-file .env pull
+          docker-compose --env-file .env up -d
+          docker-compose logs -f
+    
+    - name: Notify deployment
+      if: success()
+      uses: slackapi/slack-github-action@v1
+      with:
+        payload: |
+          {
+            "text": "✅ Deployment to Production Successful",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Gym Website Deployment*\nBranch: main\nStatus: ✅ Success"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

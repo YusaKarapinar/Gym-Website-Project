@@ -1,0 +1,43 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div style="max-width:500px; margin:0 auto;">
+    <h1 style="margin-bottom:8px;">Welcome Back</h1>
+    <p style="color:#666; margin-bottom:32px;">Login to continue your fitness journey</p>
+
+    <form asp-action="Login" method="post">
+        @if(ViewData.ModelState.ErrorCount > 0){
+            <div asp-validation-summary="All" class="error" style="padding:12px; background:#ffebee; border:1px solid #ef5350; border-radius:6px; margin-bottom:20px;"></div>
+        }
+
+        <label asp-for="Username">Username</label>
+        <input asp-for="Username" placeholder="Enter your username" />
+        <span asp-validation-for="Username" class="error"></span>
+
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" type="password" placeholder="Enter your password" />
+        <span asp-validation-for="Password" class="error"></span>
+
+        <label style="display:inline-flex; align-items:center; font-weight:normal; cursor:pointer; margin-bottom:20px;">
+            <input asp-for="RememberMe" type="checkbox" id="rememberMe" checked style="display:inline-block; width:auto; margin:0 8px 0 0;" />
+            Remember me for 30 days
+        </label>
+
+        <div style="margin-top:24px;">
+            <button type="submit">Login</button>
+            <a class="btn-secondary" asp-action="Register">Register</a>
+        </div>
+
+        <p style="text-align:center; margin-top:24px; color:#666;">
+            Don't have an account? <a asp-action="Register">Sign up</a>
+        </p>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

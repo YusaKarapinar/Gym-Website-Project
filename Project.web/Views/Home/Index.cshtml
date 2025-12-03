@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div style="text-align:center; padding: 60px 0 40px;">
+    <h1 style="font-size:48px; margin-bottom:16px;">Gym Management</h1>
+    <p style="font-size:18px; color:#666; max-width:600px; margin:0 auto 32px;">Clean, simple, and efficient gym management system.</p>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; max-width:900px; margin:0 auto;">
+    <div style="padding:32px; border:1px solid #e5e5e5; border-radius:8px; background:#fafafa;">
+        <h3>Gyms</h3>
+        <p style="color:#666;">Manage gym locations and facilities.</p>
+        <a asp-controller="Gyms" asp-action="Index">View Gyms →</a>
+    </div>
+    
+    <div style="padding:32px; border:1px solid #e5e5e5; border-radius:8px; background:#fafafa;">
+        <h3>Services</h3>
+        <p style="color:#666;">Browse available services and programs.</p>
+        <a asp-controller="Services" asp-action="Index">View Services →</a>
+    </div>
+    
+    <div style="padding:32px; border:1px solid #e5e5e5; border-radius:8px; background:#fafafa;">
+        <h3>Appointments</h3>
+        <p style="color:#666;">Book and manage your appointments.</p>
+        <a asp-controller="Appointments" asp-action="Index">View Appointments →</a>
+    </div>
+</div>
+
+@if (User?.Identity?.IsAuthenticated != true) {
+    <div style="text-align:center; margin-top:60px;">
+        <p style="color:#666; margin-bottom:20px;">Ready to get started?</p>
+        <a class="btn" asp-controller="Users" asp-action="Register" style="margin:0 8px;">Create Account</a>
+        <a asp-controller="Users" asp-action="Login" style="margin:0 8px;">Sign In</a>
+    </div>
+}

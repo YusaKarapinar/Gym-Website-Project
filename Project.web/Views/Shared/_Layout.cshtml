@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Gym</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        header { 
+          background: #ffffff; 
+          border-bottom: 1px solid #e5e5e5; 
+          padding: 16px 0;
+          position: sticky;
+          top: 0;
+          z-index: 100;
+        }
+        nav { 
+          display: flex; 
+          align-items: center; 
+          justify-content: space-between;
+        }
+        nav a { 
+          margin-right: 24px; 
+          padding: 8px 12px; 
+          border-radius: 6px;
+          font-weight: 500;
+          color: #4a4a4a;
+          transition: background 0.2s, color 0.2s;
+        }
+        nav a:hover { 
+          background: #f5f5f5;
+          color: #000;
+        }
+        nav a.active { 
+          background: #0066cc;
+          color: #ffffff;
+        }
+        nav .right { 
+          display: flex; 
+          align-items: center; 
+          gap: 12px;
+        }
+        nav .right span {
+          color: #666;
+          font-size: 14px;
+        }
+        .wrap { 
+          max-width: 1100px; 
+          margin: 0 auto; 
+          padding: 0 24px;
+        }
+        main { 
+          min-height: calc(100vh - 160px);
+          padding: 40px 24px;
+        }
+        footer { 
+          background: #fafafa;
+          border-top: 1px solid #e5e5e5;
+          padding: 24px 0;
+          text-align: center;
+          color: #999;
+          font-size: 13px;
+        }
+    </style>
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <header>
+        <div class="wrap">
+            <nav>
+                @{ var ctrl = Context.GetRouteData()?.Values["controller"]?.ToString() ?? ""; }
+                <div>
+                    <a asp-controller="Home" asp-action="Index" class="@(ctrl=="Home"?"active":"")">Home</a>
+                    <a asp-controller="Gyms" asp-action="Index" class="@(ctrl=="Gyms"?"active":"")">Gyms</a>
+                    <a asp-controller="Services" asp-action="Index" class="@(ctrl=="Services"?"active":"")">Services</a>
+                    <a asp-controller="Appointments" asp-action="Index" class="@(ctrl=="Appointments"?"active":"")">Appointments</a>
+                    @if (User?.IsInRole("Admin") == true) {
+                        <a asp-controller="Home" asp-action="Dashboard" class="@(ctrl=="Home"&&ViewData["Title"]?.ToString()=="Dashboard"?"active":"")">Admin</a>
+                    }
+                </div>
+                <div class="right">
+                    @if (User?.Identity?.IsAuthenticated == true) {
+                        <span>@User.Identity.Name</span>
+                        <a asp-controller="Users" asp-action="Logout">Logout</a>
+                    } else {
+                        <a asp-controller="Users" asp-action="Login">Login</a>
+                        <a class="btn" asp-controller="Users" asp-action="Register" style="margin:0;">Register</a>
+                    }
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="wrap">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer>
+        <div class="wrap">&copy; @DateTime.UtcNow.Year Gym Management System</div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

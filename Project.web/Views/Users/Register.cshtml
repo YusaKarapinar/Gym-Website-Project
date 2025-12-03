@@ -1,0 +1,77 @@
+﻿@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div style="max-width:600px; margin:0 auto;">
+    <h1 style="margin-bottom:8px;">Create Account</h1>
+    <p style="color:#666; margin-bottom:32px;">Join our fitness community</p>
+
+    <form asp-action="Register" method="post">
+        @if(ViewData.ModelState.ErrorCount > 0){
+            <div asp-validation-summary="All" class="error" style="padding:12px; background:#ffebee; border:1px solid #ef5350; border-radius:6px; margin-bottom:20px;"></div>
+        }
+
+        <label asp-for="UserName">Username</label>
+        <input asp-for="UserName" placeholder="Choose a username" />
+        <span asp-validation-for="UserName" class="error"></span>
+
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" placeholder="your@email.com" />
+        <span asp-validation-for="Email" class="error"></span>
+
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" type="password" placeholder="Create a password" />
+        <span asp-validation-for="Password" class="error"></span>
+
+        <label>Role</label>
+        <div style="margin-bottom:20px;">
+            <label style="display:inline-flex; align-items:center; margin-right:20px; font-weight:normal; cursor:pointer;">
+                <input asp-for="Role" type="radio" value="Admin" id="roleAdmin" style="display:inline-block; width:auto; margin:0 8px 0 0;" />
+                Admin
+            </label>
+            <label style="display:inline-flex; align-items:center; margin-right:20px; font-weight:normal; cursor:pointer;">
+                <input asp-for="Role" type="radio" value="Trainer" id="roleTrainer" style="display:inline-block; width:auto; margin:0 8px 0 0;" />
+                Trainer
+            </label>
+            <label style="display:inline-flex; align-items:center; font-weight:normal; cursor:pointer;">
+                <input asp-for="Role" type="radio" value="Member" id="roleMember" checked style="display:inline-block; width:auto; margin:0 8px 0 0;" />
+                Member
+            </label>
+        </div>
+        <span asp-validation-for="Role" class="error"></span>
+
+        <label asp-for="GymId">Gym (Optional)</label>
+        <select asp-for="GymId">
+            <option value="">-- Select Gym (Optional) --</option>
+            @if (ViewBag.Gyms != null)
+            {
+                var gyms = ViewBag.Gyms as IEnumerable<Project.web.Models.GymViewModel>;
+                if (gyms != null && gyms.Any())
+                {
+                    foreach (var gym in gyms)
+                    {
+                        <option value="@gym.GymId">@gym.Name - @gym.Address</option>
+                    }
+                }
+            }
+        </select>
+        <span asp-validation-for="GymId" class="error"></span>
+        <p style="font-size:13px; color:#666; margin-top:4px;">Select your gym if you're a trainer</p>
+
+        <div style="margin-top:24px;">
+            <button type="submit">Register</button>
+            <a class="btn-secondary" asp-action="Login">Login</a>
+        </div>
+
+        <p style="text-align:center; margin-top:24px; color:#666;">
+            Already have an account? <a asp-action="Login">Sign in</a>
+        </p>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

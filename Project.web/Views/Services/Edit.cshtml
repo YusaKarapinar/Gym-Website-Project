@@ -1,0 +1,72 @@
+@model ServiceViewModel
+
+@{
+    ViewData["Title"] = "Hizmet Düzenle";
+}
+
+<h1>Hizmet Düzenle</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="ServiceId" />
+    
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    
+    <div>
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description"></textarea>
+        <span asp-validation-for="Description"></span>
+    </div>
+    
+    <div>
+        <label asp-for="ServiceType"></label>
+        <input asp-for="ServiceType" />
+        <span asp-validation-for="ServiceType"></span>
+    </div>
+    
+    <div>
+        <label asp-for="Duration"></label>
+        <input asp-for="Duration" type="time" />
+        <span asp-validation-for="Duration"></span>
+    </div>
+    
+    <div>
+        <label asp-for="Price"></label>
+        <input asp-for="Price" type="number" step="0.01" />
+        <span asp-validation-for="Price"></span>
+    </div>
+    
+    <div>
+        <label asp-for="GymId"></label>
+        <select asp-for="GymId">
+            <option value="">-- Salon Seçin --</option>
+            @if (ViewBag.Gyms != null)
+            {
+                var gyms = ViewBag.Gyms as IEnumerable<GymViewModel>;
+                if (gyms != null)
+                {
+                    @foreach (var gym in gyms)
+                    {
+                        <option value="@gym.GymId">@gym.Name</option>
+                    }
+                }
+            }
+        </select>
+        <span asp-validation-for="GymId"></span>
+    </div>
+    
+    <div>
+        <label>
+            <input asp-for="IsActive" type="checkbox" />
+            @Html.DisplayNameFor(m => m.IsActive)
+        </label>
+    </div>
+    
+    <div>
+        <input type="submit" value="Güncelle" class="btn btn-warning" />
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </div>
+</form>

@@ -1,0 +1,37 @@
+@model ServiceViewModel
+
+@{
+    ViewData["Title"] = "Hizmet Sil";
+}
+
+<h1>Hizmet Sil</h1>
+
+<h3>Bu hizmeti silmek istediğinize emin misiniz?</h3>
+
+<div>
+    <dl>
+        <dt>Hizmet Adı</dt>
+        <dd>@Model.Name</dd>
+        
+        <dt>Açıklama</dt>
+        <dd>@Model.Description</dd>
+        
+        <dt>Hizmet Türü</dt>
+        <dd>@Model.ServiceType</dd>
+        
+        <dt>Süre</dt>
+        <dd>@Model.Duration.ToString(@"hh\:mm")</dd>
+        
+        <dt>Fiyat</dt>
+        <dd>@Model.Price.ToString("C2")</dd>
+        
+        <dt>Salon</dt>
+        <dd>@Model.GymName</dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ServiceId" />
+        <input type="submit" value="Sil" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </form>
+</div>

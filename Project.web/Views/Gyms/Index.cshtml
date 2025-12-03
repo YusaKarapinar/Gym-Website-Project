@@ -1,0 +1,36 @@
+@model IEnumerable<GymViewModel>
+
+@{
+    ViewData["Title"] = "Gyms";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+    <h1>Gyms</h1>
+    <a class="btn" asp-action="Create">New Gym</a>
+</div>
+
+@if (Model == null || !Model.Any()) {
+    <div style="text-align:center; padding:60px 20px; color:#999;">
+        <p style="font-size:16px;">No gyms yet. Create your first gym to get started.</p>
+    </div>
+} else {
+    <ul class="list">
+        @foreach (var gym in Model) {
+            <li>
+                <strong>@gym.Name</strong>
+                <div>@gym.Address</div>
+                <div>@gym.PhoneNumber</div>
+                <div style="margin-top:8px;">
+                    <span style="display:inline-block; padding:4px 10px; background:@(gym.IsActive?"#e8f5e9":"#f5f5f5"); color:@(gym.IsActive?"#2e7d32":"#666"); border-radius:4px; font-size:13px; font-weight:500;">@(gym.IsActive ? "Active" : "Inactive")</span>
+                </div>
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e5e5e5;">
+                    <a asp-action="Details" asp-route-id="@gym.GymId">Details</a>
+                    <span style="margin:0 8px; color:#ccc;">•</span>
+                    <a asp-action="Edit" asp-route-id="@gym.GymId">Edit</a>
+                    <span style="margin:0 8px; color:#ccc;">•</span>
+                    <a asp-action="Delete" asp-route-id="@gym.GymId" style="color:#d32f2f;">Delete</a>
+                </div>
+            </li>
+        }
+    </ul>
+}
