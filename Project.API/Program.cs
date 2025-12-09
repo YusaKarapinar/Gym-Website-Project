@@ -1,4 +1,5 @@
 using System.Text;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -99,6 +100,7 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
+        Log.Information("Seed data başlıyor...");
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
@@ -107,14 +109,20 @@ using (var scope = app.Services.CreateScope())
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
+            {
                 await roleManager.CreateAsync(new AppRole { Name = role });
+                Log.Information("Role oluşturuldu: {Role}", role);
+            }
         }
 
         string adminEmail = "ogrencinumarasi@sakarya.edu.tr";
-        string adminPassword = "sau";
+        string adminPassword = "sau123";
         
-        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        Log.Information("Admin kontrolü başlıyor...");
+        var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+        if (existingAdmin == null)
         {
+            Log.Information("Admin bulunamadı, oluşturuluyor...");
             var adminUser = new AppUser 
             { 
                 UserName = "admin", 
@@ -126,6 +134,14 @@ using (var scope = app.Services.CreateScope())
                 await userManager.AddToRoleAsync(adminUser, Roles.Admin);
                 Log.Information("Admin kullanıcısı oluşturuldu: {Email}", adminEmail);
             }
+            else
+            {
+                Log.Error("Admin oluşturulamadı: {Email}, Hatalar: {Errors}", adminEmail, string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+        else
+        {
+            Log.Information("Admin zaten mevcut: {Email}", adminEmail);
         }
 
         var trainers = new[]
@@ -148,6 +164,10 @@ using (var scope = app.Services.CreateScope())
                 {
                     await userManager.AddToRoleAsync(trainerUser, Roles.Trainer);
                     Log.Information("Trainer kullanıcısı oluşturuldu: {Email}", trainer.Email);
+                }
+                else
+                {
+                    Log.Error("Trainer oluşturulamadı: {Email}, Hatalar: {Errors}", trainer.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
                 }
             }
         }
@@ -174,12 +194,119 @@ using (var scope = app.Services.CreateScope())
                     await userManager.AddToRoleAsync(memberUser, Roles.Member);
                     Log.Information("Member kullanıcısı oluşturuldu: {Email}", member.Email);
                 }
+                else
+                {
+                    Log.Error("Member oluşturulamadı: {Email}, Hatalar: {Errors}", member.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
             }
         }
+
+        // Default gym + services
+        if (!await dbContext.Gyms.AnyAsync())
+        {
+            var gyms = new List<Gym>
+            {
+                new Gym
+                {
+                    Name = "Downtown Fitness Center",
+                    Address = "123 Main St, City",
+                    PhoneNumber = "+90 555 111 22 33",
+                    IsActive = true,
+                    Services = new List<Service>
+                    {
+                        new Service
+                        {
+                            Name = "Personal Training",
+                            Description = "One-on-one tailored sessions",
+                            ServiceType = ServiceTypes.PersonalTraining,
+                            Price = 750,
+                            Duration = TimeSpan.FromMinutes(60),
+                            IsActive = true
+                        },
+                        new Service
+                        {
+                            Name = "Yoga Class",
+                            Description = "Vinyasa flow for all levels",
+                            ServiceType = ServiceTypes.Yoga,
+                            Price = 350,
+                            Duration = TimeSpan.FromMinutes(50),
+                            IsActive = true
+                        }
+                    }
+                },
+                new Gym
+                {
+                    Name = "Seaside Gym",
+                    Address = "456 Coastal Rd, City",
+                    PhoneNumber = "+90 555 444 55 66",
+                    IsActive = true,
+                    Services = new List<Service>
+                    {
+                        new Service
+                        {
+                            Name = "Crossfit",
+                            Description = "High intensity functional training",
+                            ServiceType = ServiceTypes.Crossfit,
+                            Price = 650,
+                            Duration = TimeSpan.FromMinutes(55),
+                            IsActive = true
+                        },
+                        new Service
+                        {
+                            Name = "Swimming Lesson",
+                            Description = "Technique and endurance coaching",
+                            ServiceType = ServiceTypes.Swimming,
+                            Price = 500,
+                            Duration = TimeSpan.FromMinutes(45),
+                            IsActive = true
+                        }
+                    }
+                }
+            };
+
+            dbContext.Gyms.AddRange(gyms);
+            await dbContext.SaveChangesAsync();
+            Log.Information("Default gym ve hizmetler eklendi.");
+        }
+
+        // Default appointment
+        if (!await dbContext.Appointments.AnyAsync())
+        {
+            var member = await userManager.FindByEmailAsync("mehmet@test.com");
+            var trainer = await userManager.FindByEmailAsync("ahmet@fittrack.com");
+            var service = await dbContext.Services.FirstOrDefaultAsync();
+            var gym = await dbContext.Gyms.FirstOrDefaultAsync();
+
+            if (member != null && trainer != null && service != null && gym != null)
+            {
+                var appointment = new Appointment
+                {
+                    Date = DateTime.UtcNow.Date.AddDays(1),
+                    Time = new TimeSpan(10, 0, 0),
+                    UserId = member.Id,
+                    TrainerId = trainer.Id,
+                    ServiceId = service.ServiceId,
+                    GymId = gym.GymId,
+                    Status = AppointmentStatus.Pending,
+                    Price = service.Price,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await dbContext.Appointments.AddAsync(appointment);
+                await dbContext.SaveChangesAsync();
+                Log.Information("Default randevu oluşturuldu ({Date} {Time})", appointment.Date.ToShortDateString(), appointment.Time);
+            }
+            else
+            {
+                Log.Warning("Default randevu oluşturulamadı: kullanıcı/egitmen/hizmet/salon eksik.");
+            }
+        }
+        
+        Log.Information("Seed data tamamlandı.");
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "Identity seedleme sırasında bir hata oluştu.");
+        Log.Error(ex, "Seed data sırasında hata oluştu.");
     }
 }
 

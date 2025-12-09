@@ -21,5 +21,7 @@ namespace Project.API.DTO
         public string? Status { get; set; }
         public decimal Price { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? CanceledBy { get; set; }
+        public DateTime? CanceledAt { get; set; }
     }
 }

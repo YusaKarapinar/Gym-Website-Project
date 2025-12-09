@@ -33,6 +33,48 @@ namespace Project.web.Controllers
             return httpClient;
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Member")]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var httpClient = GetAuthenticatedHttpClient();
+            var response = await httpClient.PostAsJsonAsync("api/Appointments/approve", id);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = $"Failed to approve appointment. {response.StatusCode}: {errorContent}";
+            }
+            else
+            {
+                TempData["Success"] = "Appointment approved.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Member")]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var httpClient = GetAuthenticatedHttpClient();
+            var response = await httpClient.PostAsJsonAsync("api/Appointments/reject", id);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = $"Failed to reject appointment. {response.StatusCode}: {errorContent}";
+            }
+            else
+            {
+                TempData["Success"] = "Appointment rejected.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Appointments - Herkes randevularını görebilir
         public async Task<IActionResult> Index()
         {
@@ -46,8 +88,17 @@ namespace Project.web.Controllers
                 ModelState.AddModelError(string.Empty, $"Failed to retrieve appointments. {response.StatusCode}: {errorContent}");
                 return View(new List<AppointmentViewModel>());
             }
-            var appointments = await response.Content.ReadFromJsonAsync<IEnumerable<AppointmentViewModel>>();
-            return View(appointments ?? new List<AppointmentViewModel>());
+            var appointments = await response.Content.ReadFromJsonAsync<IEnumerable<AppointmentViewModel>>()
+                              ?? new List<AppointmentViewModel>();
+
+            // Üye giriş yaptıysa sadece kendi randevularını göster
+            if (User.IsInRole("Member"))
+            {
+                var currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+                appointments = appointments.Where(a => a.UserId == currentUserId);
+            }
+
+            return View(appointments);
         }
 
         // GET: Appointments/Create - Sadece Admin ve Trainer

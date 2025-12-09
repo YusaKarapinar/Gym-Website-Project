@@ -37,5 +37,9 @@ namespace Project.API.Models
         public decimal Price { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        
+        public string? CanceledBy { get; set; }
+        
+        public DateTime? CanceledAt { get; set; }
     }
 }

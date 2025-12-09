@@ -11,6 +11,15 @@
     }
 </div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="alert">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+}
+
 @if (Model == null || !Model.Any()) {
     <div style="text-align:center; padding:60px 20px; color:#999;">
         <p style="font-size:16px;">No appointments yet. Book your first appointment to get started.</p>
@@ -43,6 +52,23 @@
                     }
                     <span style="display:inline-block; padding:4px 10px; background:@statusColor; color:@statusTextColor; border-radius:4px; font-size:13px; font-weight:500;">@appointment.Status</span>
                 </div>
+                @if (!string.IsNullOrEmpty(appointment.CanceledBy)) {
+                    <div style="margin-top:8px; padding:8px; background:#fff3cd; border-left:3px solid #ffc107; border-radius:4px;">
+                        <small style="color:#856404;">Canceled by <strong>@appointment.CanceledBy</strong> on @appointment.CanceledAt?.ToString("dd.MM.yyyy HH:mm")</small>
+                    </div>
+                }
+                @if (User.IsInRole("Member") && string.Equals(appointment.Status, "Pending", System.StringComparison.OrdinalIgnoreCase)) {
+                    <div style="margin-top:12px; display:flex; gap:10px;">
+                        <form asp-action="Approve" asp-route-id="@appointment.AppointmentId" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn" style="margin:0;">Approve</button>
+                        </form>
+                        <form asp-action="Reject" asp-route-id="@appointment.AppointmentId" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-secondary" style="margin:0;">Reject</button>
+                        </form>
+                    </div>
+                }
                 @if (User.IsInRole("Admin") || User.IsInRole("Trainer")) {
                     <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e5e5e5;">
                         <form asp-action="Delete" asp-route-id="@appointment.AppointmentId" method="post" style="display:inline;">

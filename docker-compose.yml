@@ -1,19 +1,19 @@
 services:
   # 1. POSTGRESQL VERITABANI SERVISI
   postgresdb:
-    image: postgres:14.19-alpine3.21
-    container_name: project_postgres_db
+    image: postgres:14-alpine
+    container_name: postgres_db
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER:-projectuser}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-8086}
-      POSTGRES_DB: ${DB_NAME:-projectdb} 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gymdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "projectuser", "-d", "projectdb" ]
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-d", "gymdb" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,12 +22,12 @@ services:
 # 2. REDIS ÖNBELLEK SERVISI
   redis:
     image: redis:7-alpine
-    container_name: project_redis
+    container_name: redis_cache
     restart: always
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"] # Şifre olmadığı için -a parametresine gerek yok
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,15 +39,14 @@ services:
     build:
       context: ./Project.API
       target: final
-    container_name: project_api_server
+    container_name: api_server
     ports:
-      - "0.0.0.0:8080:8080"
+      - "8080:8080"
     restart: always
     environment:
-      ConnectionStrings__DefaultConnection: "Host=postgresdb;Port=5432;Database=${DB_NAME:-projectdb};Username=${DB_USER:-projectuser};Password=${DB_PASSWORD:-8086}"
-      # AŞAĞIDAKİ SATIR GÜNCELLENDİ (Sadece sunucu adı ve port):
+      ConnectionStrings__DefaultConnection: "Host=postgresdb;Database=gymdb;Username=postgres;Password=postgres"
       ConnectionStrings__Redis: "redis:6379"
-      AppSettings__Token: ${JWT_SECRET:-5676b47ff209d3e9eb1518ccc3144cbb}
+      AppSettings__Token: "mysupersecretkey123456789012345678901234567890"
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENV:-Development}
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
     depends_on:
@@ -58,12 +57,12 @@ services:
     networks:
       - project_network
 
-  # 4. ASP.NET CORE WEB SERVISI
+  # 4. ASP.NET CORE WEB UI SERVISI
   web:
     build:
       context: ./Project.web
       target: final
-    container_name: project_web_server
+    container_name: web_server
     ports:
       - "0.0.0.0:5002:8080"
     restart: always

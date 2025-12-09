@@ -6,5 +6,7 @@ namespace Project.API.Constants
         public const string Yoga = "Yoga";
         public const string Pilates = "Pilates";
         public const string Crossfit = "Crossfit";
+        public const string PersonalTraining = "PersonalTraining";
+        public const string Swimming = "Swimming";
     }
 }
