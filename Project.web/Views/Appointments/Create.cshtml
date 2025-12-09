@@ -34,127 +34,104 @@
         
         <label asp-for="Date">Appointment Date</label>
         <input asp-for="Date" type="date" />
-                    <span asp-validation-for="Date" class="text-danger"></span>
-                </div>
-                
-                <div class="mb-3">
-                    <label asp-for="Time" class="form-label">
-                        <i class="fas fa-clock"></i> Randevu Saati
-                    </label>
-                    <input asp-for="Time" type="time" class="form-control" />
-                    <span asp-validation-for="Time" class="text-danger"></span>
-                </div>
-                
-                <div class="mb-3">
-                    <label asp-for="UserId" class="form-label">
-                        <i class="fas fa-user"></i> Üye
-                    </label>
-                    <select asp-for="UserId" class="form-select">
-                        <option value="">-- Üye Seçin --</option>
-                        @if (ViewBag.Users != null)
+        <span asp-validation-for="Date" class="error"></span>
+        
+        <label asp-for="Time">Appointment Time</label>
+        <input asp-for="Time" type="time" />
+        <span asp-validation-for="Time" class="error"></span>
+        
+        <label asp-for="UserId">Member</label>
+        <select asp-for="UserId">
+            <option value="">-- Select Member --</option>
+            @if (ViewBag.Users != null)
+            {
+                var users = ViewBag.Users as IEnumerable<UserViewModel>;
+                if (users != null)
+                {
+                    @foreach (var user in users)
+                    {
+                        <option value="@user.Id">@user.UserName (@user.Email)</option>
+                    }
+                }
+            }
+        </select>
+        <span asp-validation-for="UserId" class="error"></span>
+        
+        <label asp-for="TrainerId">Trainer</label>
+        <select asp-for="TrainerId">
+            <option value="">-- Select Trainer --</option>
+            @if (ViewBag.Trainers != null)
+            {
+                var trainers = ViewBag.Trainers as IEnumerable<UserViewModel>;
+                if (trainers != null)
+                {
+                    @foreach (var trainer in trainers)
+                    {
+                        <option value="@trainer.Id">@trainer.UserName - @trainer.GymName</option>
+                    }
+                }
+            }
+        </select>
+        <span asp-validation-for="TrainerId" class="error"></span>
+        
+        <label asp-for="ServiceId">Service</label>
+        <select asp-for="ServiceId" id="ServiceId">
+            @if (User.IsInRole("Admin"))
+            {
+                <option value="">-- Select Gym First --</option>
+            }
+            else if (User.IsInRole("Trainer"))
+            {
+                <option value="">-- Select Service --</option>
+                @if (ViewBag.Services != null)
+                {
+                    var services = ViewBag.Services as IEnumerable<ServiceViewModel>;
+                    if (services != null)
+                    {
+                        @foreach (var service in services)
                         {
-                            var users = ViewBag.Users as IEnumerable<UserViewModel>;
-                            if (users != null)
-                            {
-                                @foreach (var user in users)
-                                {
-                                    <option value="@user.Id">@user.UserName (@user.Email)</option>
-                                }
-                            }
+                            <option value="@service.ServiceId">@service.Name - @service.Price.ToString("C2")</option>
                         }
-                    </select>
-                    <span asp-validation-for="UserId" class="text-danger"></span>
-                </div>
-                
-                <div class="mb-3">
-                    <label asp-for="TrainerId" class="form-label">
-                        <i class="fas fa-user-tie"></i> Eğitmen
-                    </label>
-                    <select asp-for="TrainerId" class="form-select">
-                        <option value="">-- Eğitmen Seçin --</option>
-                        @if (ViewBag.Trainers != null)
-                        {
-                            var trainers = ViewBag.Trainers as IEnumerable<UserViewModel>;
-                            if (trainers != null)
-                            {
-                                @foreach (var trainer in trainers)
-                                {
-                                    <option value="@trainer.Id">@trainer.UserName - @trainer.GymName</option>
-                                }
-                            }
-                        }
-                    </select>
-                    <span asp-validation-for="TrainerId" class="text-danger"></span>
-                </div>
-                
-                <div class="mb-3">
-                    <label asp-for="ServiceId" class="form-label">
-                        <i class="fas fa-concierge-bell"></i> Hizmet
-                    </label>
-                    <select asp-for="ServiceId" class="form-select" id="ServiceId">
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <option value="">-- Önce Salon Seçin --</option>
-                        }
-                        else if (User.IsInRole("Trainer"))
-                        {
-                            <option value="">-- Hizmet Seçin --</option>
-                            @if (ViewBag.Services != null)
-                            {
-                                var services = ViewBag.Services as IEnumerable<ServiceViewModel>;
-                                if (services != null)
-                                {
-                                    @foreach (var service in services)
-                                    {
-                                        <option value="@service.ServiceId">@service.Name - @service.Price.ToString("F2") TL</option>
-                                    }
-                                }
-                            }
-                        }
-                    </select>
-                    <span asp-validation-for="ServiceId" class="text-danger"></span>
-                </div>
-                
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Kaydet
-                    </button>
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> İptal
-                    </a>
-                </div>
-            </form>
+                    }
+                }
+            }
+        </select>
+        <span asp-validation-for="ServiceId" class="error"></span>
+        
+        <div style="margin-top:24px;">
+            <button type="submit">Create Appointment</button>
+            <a class="btn-secondary" asp-action="Index">Cancel</a>
         </div>
-    </div>
+    </form>
 </div>
 
 @section Scripts {
     <script>
-        // Gym seçildiğinde services'i yükle
         document.getElementById('GymId')?.addEventListener('change', function() {
             const gymId = this.value;
             const serviceSelect = document.getElementById('ServiceId');
             
             if (!gymId) {
-                serviceSelect.innerHTML = '<option value="">-- Önce Salon Seçin --</option>';
+                serviceSelect.innerHTML = '<option value="">-- Select Gym First --</option>';
                 return;
             }
             
             fetch(`/Services/GetByGym?gymId=${gymId}`)
             .then(response => response.json())
             .then(services => {
-                serviceSelect.innerHTML = '<option value="">-- Hizmet Seçin --</option>';
+                serviceSelect.innerHTML = '<option value="">-- Select Service --</option>';
                 services.forEach(service => {
                     const option = document.createElement('option');
                     option.value = service.serviceId;
-                    option.textContent = `${service.name} - ${service.price.toFixed(2)} TL`;
+                    option.textContent = `${service.name} - $${service.price.toFixed(2)}`;
                     serviceSelect.appendChild(option);
                 });
             })
             .catch(error => {
                 console.error('Error loading services:', error);
-                serviceSelect.innerHTML = '<option value="">Hizmetler yüklenemedi</option>';
+                serviceSelect.innerHTML = '<option value="">Error loading services</option>';
             });
         });
     </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

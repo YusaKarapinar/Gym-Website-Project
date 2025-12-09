@@ -7,8 +7,8 @@ builder.Services.AddControllersWithViews();
 
 // HTTP Client, Authentication ve Session servislerini ekle
 builder.Services.AddHttpClientServices(builder.Configuration);
-builder.Services.AddAuthenticationServices();
-builder.Services.AddSessionServices();
+builder.Services.AddCookieAuthenticationConfiguration();
+builder.Services.AddSessionConfiguration();
 
 
 var app = builder.Build();
@@ -37,3 +37,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// Make the implicit Program class public so test projects can access it
+public partial class Program { }

@@ -25,22 +25,15 @@
         <label style="display:inline-flex; align-items:center; font-weight:normal; cursor:pointer; margin-bottom:20px;">
             <input asp-for="IsActive" type="checkbox" style="display:inline-block; width:auto; margin:0 8px 0 0;" />
             Active
-                                    <i class="fas fa-check-circle"></i> @Html.DisplayNameFor(m => m.IsActive)
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> İptal
-                            </a>
-                            <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-save"></i> Güncelle
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        </label>
+        
+        <div style="margin-top:24px;">
+            <button type="submit">Save Changes</button>
+            <a class="btn-secondary" asp-action="Index">Cancel</a>
         </div>
-    </div>
+    </form>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

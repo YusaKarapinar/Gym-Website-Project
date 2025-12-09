@@ -71,6 +71,11 @@ namespace Project.API.Tests
             ServiceId2 = serviceInactive.ServiceId;
         }
 
+        public void Dispose()
+        {
+            // Cleanup if needed
+        }
+
         public Task DisposeAsync() => Task.CompletedTask;
     }
 
