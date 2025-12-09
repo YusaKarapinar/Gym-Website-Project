@@ -1,53 +1,39 @@
 @model AppointmentViewModel
 
 @{
-    ViewData["Title"] = "Yeni Randevu Oluştur";
+    ViewData["Title"] = "New Appointment";
 }
 
-<div class="text-center py-4 mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div class="container text-white">
-        <h1 class="display-5 fw-bold mb-2">
-            <i class="fas fa-calendar-plus"></i> Yeni Randevu Oluştur
-        </h1>
-        <p class="lead mb-0">Randevu detaylarını girin</p>
-    </div>
-</div>
+<h1 style="margin-bottom:32px;">New Appointment</h1>
 
-<div class="container">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-                
-                @if (User.IsInRole("Admin"))
+<div style="max-width:600px;">
+    <form asp-action="Create" method="post">
+        @if(ViewData.ModelState.ErrorCount > 0){
+            <div asp-validation-summary="All" class="error" style="padding:12px; background:#ffebee; border:1px solid #ef5350; border-radius:6px; margin-bottom:20px;"></div>
+        }
+        
+        @if (User.IsInRole("Admin"))
+        {
+            <label asp-for="GymId">Gym</label>
+            <select asp-for="GymId" id="GymId">
+                <option value="">-- Select Gym --</option>
+                @if (ViewBag.Gyms != null)
                 {
-                    <div class="mb-3">
-                        <label for="GymId" class="form-label">
-                            <i class="fas fa-building"></i> Spor Salonu
-                        </label>
-                        <select asp-for="GymId" class="form-select" id="GymId">
-                            <option value="">-- Salon Seçin --</option>
-                            @if (ViewBag.Gyms != null)
-                            {
-                                var gyms = ViewBag.Gyms as IEnumerable<GymViewModel>;
-                                if (gyms != null)
-                                {
-                                    @foreach (var gym in gyms)
-                                    {
-                                        <option value="@gym.GymId">@gym.Name</option>
-                                    }
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="GymId" class="text-danger"></span>
-                    </div>
+                    var gyms = ViewBag.Gyms as IEnumerable<GymViewModel>;
+                    if (gyms != null)
+                    {
+                        @foreach (var gym in gyms)
+                        {
+                            <option value="@gym.GymId">@gym.Name</option>
+                        }
+                    }
                 }
-                
-                <div class="mb-3">
-                    <label asp-for="Date" class="form-label">
-                        <i class="fas fa-calendar"></i> Randevu Tarihi
-                    </label>
-                    <input asp-for="Date" type="date" class="form-control" />
+            </select>
+            <span asp-validation-for="GymId" class="error"></span>
+        }
+        
+        <label asp-for="Date">Appointment Date</label>
+        <input asp-for="Date" type="date" />
                     <span asp-validation-for="Date" class="text-danger"></span>
                 </div>
                 

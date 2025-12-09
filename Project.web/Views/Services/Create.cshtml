@@ -1,46 +1,36 @@
 @model ServiceViewModel
 
 @{
-    ViewData["Title"] = "Yeni Hizmet Ekle";
+    ViewData["Title"] = "New Service";
 }
 
-<h1>Yeni Hizmet Ekle</h1>
+<h1 style="margin-bottom:32px;">New Service</h1>
 
-<form asp-action="Create">
-    <div>
-        <label asp-for="Name"></label>
-        <input asp-for="Name" />
-        <span asp-validation-for="Name"></span>
-    </div>
-    
-    <div>
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description"></textarea>
-        <span asp-validation-for="Description"></span>
-    </div>
-    
-    <div>
-        <label asp-for="ServiceType"></label>
-        <input asp-for="ServiceType" />
-        <span asp-validation-for="ServiceType"></span>
-    </div>
-    
-    <div>
-        <label asp-for="Duration"></label>
+<div style="max-width:600px;">
+    <form asp-action="Create">
+        <label asp-for="Name">Service Name</label>
+        <input asp-for="Name" placeholder="Service name" />
+        <span asp-validation-for="Name" class="error"></span>
+        
+        <label asp-for="Description">Description</label>
+        <textarea asp-for="Description" placeholder="Service description" rows="4"></textarea>
+        <span asp-validation-for="Description" class="error"></span>
+        
+        <label asp-for="ServiceType">Service Type</label>
+        <input asp-for="ServiceType" placeholder="e.g., Personal Training, Group Class" />
+        <span asp-validation-for="ServiceType" class="error"></span>
+        
+        <label asp-for="Duration">Duration</label>
         <input asp-for="Duration" type="time" />
-        <span asp-validation-for="Duration"></span>
-    </div>
-    
-    <div>
-        <label asp-for="Price"></label>
-        <input asp-for="Price" type="number" step="0.01" />
-        <span asp-validation-for="Price"></span>
-    </div>
-    
-    <div>
-        <label asp-for="GymId"></label>
+        <span asp-validation-for="Duration" class="error"></span>
+        
+        <label asp-for="Price">Price</label>
+        <input asp-for="Price" type="number" step="0.01" placeholder="0.00" />
+        <span asp-validation-for="Price" class="error"></span>
+        
+        <label asp-for="GymId">Gym</label>
         <select asp-for="GymId">
-            <option value="">-- Salon Seçin --</option>
+            <option value="">-- Select Gym --</option>
             @if (ViewBag.Gyms != null)
             {
                 var gyms = ViewBag.Gyms as IEnumerable<GymViewModel>;
@@ -53,18 +43,20 @@
                 }
             }
         </select>
-        <span asp-validation-for="GymId"></span>
-    </div>
-    
-    <div>
-        <label>
-            <input asp-for="IsActive" type="checkbox" />
-            @Html.DisplayNameFor(m => m.IsActive)
+        <span asp-validation-for="GymId" class="error"></span>
+        
+        <label style="display:inline-flex; align-items:center; font-weight:normal; cursor:pointer; margin-bottom:20px;">
+            <input asp-for="IsActive" type="checkbox" checked style="display:inline-block; width:auto; margin:0 8px 0 0;" />
+            Active
         </label>
-    </div>
-    
-    <div>
-        <input type="submit" value="Kaydet" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">İptal</a>
-    </div>
-</form>
+        
+        <div style="margin-top:24px;">
+            <button type="submit">Create Service</button>
+            <a class="btn-secondary" asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
