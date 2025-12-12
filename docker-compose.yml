@@ -47,6 +47,7 @@ services:
       ConnectionStrings__DefaultConnection: "Host=postgresdb;Database=gymdb;Username=postgres;Password=postgres"
       ConnectionStrings__Redis: "redis:6379"
       AppSettings__Token: "mysupersecretkey123456789012345678901234567890"
+      GeminiAI__ApiKey: ""
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENV:-Development}
       ASPNETCORE_URLS: "http://0.0.0.0:8080"
     depends_on:

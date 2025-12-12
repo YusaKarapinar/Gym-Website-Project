@@ -73,12 +73,14 @@ builder.Services.AddAuthentication(options =>
 
 // 4. DIĞER SERVISLER
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var configuration = builder.Configuration.GetConnectionString("Redis");
     return ConnectionMultiplexer.Connect(configuration ?? "localhost:6379");
 });
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+builder.Services.AddScoped<IGeminiService, GeminiService>();
 
 var app = builder.Build();
 

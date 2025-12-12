@@ -73,9 +73,16 @@
                 @{ var ctrl = Context.GetRouteData()?.Values["controller"]?.ToString() ?? ""; }
                 <div>
                     <a asp-controller="Home" asp-action="Index" class="@(ctrl=="Home"?"active":"")">Home</a>
-                    <a asp-controller="Gyms" asp-action="Index" class="@(ctrl=="Gyms"?"active":"")">Gyms</a>
-                    <a asp-controller="Services" asp-action="Index" class="@(ctrl=="Services"?"active":"")">Services</a>
+                    @if (User?.IsInRole("Admin") == true) {
+                        <a asp-controller="Gyms" asp-action="Index" class="@(ctrl=="Gyms"?"active":"")">Gyms</a>
+                        <a asp-controller="Services" asp-action="Index" class="@(ctrl=="Services"?"active":"")">Services</a>
+                    }
                     <a asp-controller="Appointments" asp-action="Index" class="@(ctrl=="Appointments"?"active":"")">Appointments</a>
+                    @if (User?.Identity?.IsAuthenticated == true) {
+                        <a asp-controller="AI" asp-action="FitnessRecommendation" class="@(ctrl=="AI"?"active":"")" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white;">
+                             AI Fitness
+                        </a>
+                    }
                     @if (User?.IsInRole("Admin") == true) {
                         <a asp-controller="Home" asp-action="Dashboard" class="@(ctrl=="Home"&&ViewData["Title"]?.ToString()=="Dashboard"?"active":"")">Admin</a>
                     }
