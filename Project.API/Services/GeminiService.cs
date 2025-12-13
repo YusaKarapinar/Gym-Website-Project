@@ -8,6 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Project.API.Services
 {
+    /// <summary>
+    /// Service for generating personalized fitness recommendations using Google Gemini AI API
+    /// </summary>
     public class GeminiService : IGeminiService
     {
         private readonly HttpClient _httpClient;

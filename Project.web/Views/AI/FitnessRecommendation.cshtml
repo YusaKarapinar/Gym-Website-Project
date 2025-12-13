@@ -3,6 +3,7 @@
     ViewData["Title"] = "AI Fitness Önerisi";
 }
 
+<!-- AI-powered fitness recommendation system -->
 <div style="max-width:900px; margin:0 auto;">
     <h1 style="margin-bottom:8px;">🤖 AI Fitness Önerisi</h1>
     <p style="color:#666; margin-bottom:32px;">Yapay zeka destekli kişiselleştirilmiş fitness ve beslenme planı alın</p>
@@ -54,9 +55,12 @@
         <div>
             @if (!string.IsNullOrEmpty(Model.Recommendation))
             {
-                <div style="background:#f5f5f5; padding:24px; border-radius:8px; border:1px solid #e0e0e0;">
-                    <h3 style="margin-top:0; color:#1976d2;">📋 Sizin İçin Özel Plan</h3>
-                    <div style="white-space:pre-wrap; line-height:1.8; color:#333;">
+                <div style="background:#f5f5f5; padding:24px; border-radius:8px; border:1px solid #e0e0e0; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top:0; color:#1976d2; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:24px;">📋</span>
+                        Sizin İçin Özel Plan
+                    </h3>
+                    <div style="white-space:pre-wrap; line-height:1.8; color:#333; font-size:15px;">
                         @Html.Raw(System.Text.RegularExpressions.Regex.Replace(
                             Model.Recommendation
                                 .Replace("##", "<h4 style='color:#1976d2; margin-top:20px; margin-bottom:10px;'>")
@@ -71,18 +75,21 @@
             }
             else
             {
-                <div style="background:#f5f5f5; padding:40px; border-radius:8px; border:1px solid #e0e0e0; text-align:center; color:#999;">
-                    <div style="font-size:64px; margin-bottom:16px;">🏋️</div>
-                    <p>Fitness öneriniz burada görünecek</p>
-                    <p style="font-size:14px; margin-top:8px;">Formu doldurun ve AI destekli kişiselleştirilmiş planınızı alın</p>
+                <div style="background:#f5f5f5; padding:40px; border-radius:8px; border:1px solid #e0e0e0; text-align:center; color:#999; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="font-size:64px; margin-bottom:16px; animation:bounce 2s infinite;">🏋️</div>
+                    <p style="font-size:16px; font-weight:500; margin:0 0 8px 0;">Fitness öneriniz burada görünecek</p>
+                    <p style="font-size:14px; margin:8px 0 0 0; color:#bbb;">Formu doldurun ve AI destekli kişiselleştirilmiş planınızı alın</p>
                 </div>
             }
         </div>
     </div>
 
-    <div style="margin-top:32px; padding:20px; background:#e3f2fd; border-radius:8px; border-left:4px solid #1976d2;">
-        <h4 style="margin-top:0; color:#1976d2;">💡 İpucu</h4>
-        <p style="margin:0; color:#555;">
+    <div style="margin-top:32px; padding:20px; background:#e3f2fd; border-radius:8px; border-left:4px solid #1976d2; box-shadow:0 1px 4px rgba(25,118,210,0.15);">
+        <h4 style="margin-top:0; color:#1976d2; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:20px;">💡</span>
+            İpucu
+        </h4>
+        <p style="margin:0; color:#555; font-size:15px;">
             Daha detaylı hedef yazdıkça, AI daha kişiselleştirilmiş ve faydalı öneriler sunabilir. 
             Mevcut sağlık durumunuz, yaşam tarzınız ve egzersiz geçmişiniz hakkında bilgi verin.
         </p>
