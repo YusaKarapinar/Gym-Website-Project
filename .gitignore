@@ -487,3 +487,6 @@ $RECYCLE.BIN/
 lib/
 Migrations/
 appsettings.Development.json
+# extra dotenv variants
+.env.*
+**/.env
