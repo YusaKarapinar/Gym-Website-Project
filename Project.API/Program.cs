@@ -1,5 +1,6 @@
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,42 @@ using Serilog;
 using Serilog.Events;
 using StackExchange.Redis;
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+// Load .env for local runs (before building configuration)
+static void LoadDotEnvIfPresent()
+{
+    try
+    {
+        var current = Directory.GetCurrentDirectory();
+        var candidates = new[]
+        {
+            Path.Combine(current, ".env"),
+            Path.Combine(current, "..", ".env"),
+            Path.Combine(current, "..", "..", ".env")
+        };
+
+        string? envPath = candidates.FirstOrDefault(File.Exists);
+        if (envPath == null) return;
+
+        foreach (var rawLine in File.ReadAllLines(envPath))
+        {
+            var line = rawLine.Trim();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (line.StartsWith("#")) continue;
+            var idx = line.IndexOf('=');
+            if (idx <= 0) continue;
+            var key = line.Substring(0, idx).Trim();
+            var value = line.Substring(idx + 1).Trim().Trim('"');
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                Environment.SetEnvironmentVariable(key, value);
+            }
+        }
+    }
+    catch { /* best-effort for local dev */ }
+}
+
+LoadDotEnvIfPresent();
 
 var builder = WebApplication.CreateBuilder(args);
 
