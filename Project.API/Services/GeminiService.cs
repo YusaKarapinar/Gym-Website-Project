@@ -9,7 +9,8 @@ using Microsoft.Extensions.Logging;
 namespace Project.API.Services
 {
     /// <summary>
-    /// Service for generating personalized fitness recommendations using Google Gemini AI API
+    /// Service for generating personalized fitness recommendations using Google Gemini AI API.
+    /// Integrates with Google Generative Language API to provide tailored workout and nutrition plans.
     /// </summary>
     public class GeminiService : IGeminiService
     {
