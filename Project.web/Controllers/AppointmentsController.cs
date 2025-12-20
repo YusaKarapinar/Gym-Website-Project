@@ -120,7 +120,15 @@ namespace Project.web.Controllers
             if (trainersResponse.IsSuccessStatusCode)
             {
                 var trainers = await trainersResponse.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>();
-                ViewBag.Trainers = trainers?.Where(u => u.Role == "Trainer");
+                if (User.IsInRole("Trainer"))
+                {
+                    var currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+                    ViewBag.Trainers = trainers?.Where(u => u.Id == currentUserId);
+                }
+                else
+                {
+                    ViewBag.Trainers = trainers?.Where(u => u.Role == "Trainer");
+                }
             }
             
             // Admin: Load gyms for dropdown
@@ -174,6 +182,8 @@ namespace Project.web.Controllers
             if (User.IsInRole("Trainer"))
             {
                 var currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+                model.TrainerId = currentUserId; // Trainer kendisi için randevu oluşturuyor
+
                 var userResponse = await httpClient.GetAsync($"api/Users");
                 if (userResponse.IsSuccessStatusCode)
                 {
@@ -209,7 +219,15 @@ namespace Project.web.Controllers
                 if (trainersResponse.IsSuccessStatusCode)
                 {
                     var trainers = await trainersResponse.Content.ReadFromJsonAsync<IEnumerable<UserViewModel>>();
-                    ViewBag.Trainers = trainers?.Where(u => u.Role == "Trainer");
+                    if (User.IsInRole("Trainer"))
+                    {
+                        var currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+                        ViewBag.Trainers = trainers?.Where(u => u.Id == currentUserId);
+                    }
+                    else
+                    {
+                        ViewBag.Trainers = trainers?.Where(u => u.Role == "Trainer");
+                    }
                 }
                 
                 if (User.IsInRole("Admin"))

@@ -78,7 +78,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 3; // allow short seed password "sau"
+    options.Password.RequiredLength = 3;
     options.User.RequireUniqueEmail = true;
 });
 
@@ -181,12 +181,32 @@ using (var scope = app.Services.CreateScope())
         else
         {
             Log.Information("Admin zaten mevcut: {Email}", adminEmail);
+            // Ensure admin has the Admin role
+            var rolesOfAdmin = await userManager.GetRolesAsync(existingAdmin);
+            if (!rolesOfAdmin.Contains(Roles.Admin))
+            {
+                await userManager.AddToRoleAsync(existingAdmin, Roles.Admin);
+                Log.Information("Admin kullanıcısına Admin rolü atandı: {Email}", adminEmail);
+            }
+
+            // Reset password to required value if needed
+            var tokenForReset = await userManager.GeneratePasswordResetTokenAsync(existingAdmin);
+            var resetResult = await userManager.ResetPasswordAsync(existingAdmin, tokenForReset, adminPassword);
+            if (resetResult.Succeeded)
+            {
+                Log.Information("Admin parolası güncellendi.");
+            }
+            else
+            {
+                Log.Warning("Admin parolası güncellenemedi: {Errors}", string.Join(", ", resetResult.Errors.Select(e => e.Description)));
+            }
         }
 
         var trainers = new[]
         {
             new { UserName = "ahmet.trainer", Email = "ahmet@fittrack.com", Password = "Trainer123" },
-            new { UserName = "ayse.trainer", Email = "ayse@fittrack.com", Password = "Trainer123" }
+            new { UserName = "ayse.trainer", Email = "ayse@fittrack.com", Password = "Trainer123" },
+            new { UserName = "Trainer", Email = "trainer@fittrack.com", Password = "Trainer123" }
         };
 
         foreach (var trainer in trainers)
@@ -306,6 +326,19 @@ using (var scope = app.Services.CreateScope())
             dbContext.Gyms.AddRange(gyms);
             await dbContext.SaveChangesAsync();
             Log.Information("Default gym ve hizmetler eklendi.");
+        }
+
+        // Ensure the new Trainer has a Gym assigned
+        var newTrainer = await userManager.FindByEmailAsync("trainer@fittrack.com");
+        if (newTrainer != null && newTrainer.GymId == null)
+        {
+            var firstGym = await dbContext.Gyms.FirstOrDefaultAsync();
+            if (firstGym != null)
+            {
+                newTrainer.GymId = firstGym.GymId;
+                await userManager.UpdateAsync(newTrainer);
+                Log.Information("Trainer kullanıcısına Gym atandı: {GymName}", firstGym.Name);
+            }
         }
 
         // Default appointment

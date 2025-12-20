@@ -61,6 +61,10 @@ namespace Project.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDTO userDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             // Email benzersizliği kontrolü
             var existingUserByEmail = await _userManager.FindByEmailAsync(userDto.Email);
             if (existingUserByEmail != null)
@@ -78,7 +82,16 @@ namespace Project.API.Controllers
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, userDto.Role);
+                // Kullanıcıdan gelen rolü kullan, yoksa Member ata
+                string roleToAssign = !string.IsNullOrEmpty(userDto.Role) ? userDto.Role : Roles.Member;
+                
+                // Güvenlik için sadece belirli rollere izin verilebilir
+                if (roleToAssign != Roles.Member && roleToAssign != Roles.Trainer) 
+                {
+                     roleToAssign = Roles.Member;
+                }
+
+                await _userManager.AddToRoleAsync(user, roleToAssign);
                 return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
             }
             else

@@ -63,7 +63,12 @@ namespace Project.web.Controllers
             var loginResponse = await httpClient.PostAsJsonAsync("api/Users/login", model);
             if (!loginResponse.IsSuccessStatusCode)
             {
-                ModelState.AddModelError(string.Empty, $"Invalid login attempt. {loginResponse.StatusCode}");
+                // Show server-provided error details when available for clearer feedback
+                var serverError = await loginResponse.Content.ReadAsStringAsync();
+                var message = string.IsNullOrWhiteSpace(serverError)
+                    ? $"Invalid login attempt. {loginResponse.StatusCode}"
+                    : $"Invalid login attempt. {loginResponse.StatusCode}: {serverError}";
+                ModelState.AddModelError(string.Empty, message);
                 return View(model);
             }
 
@@ -103,18 +108,19 @@ namespace Project.web.Controllers
             {
                 _logger.LogInformation($"JWT Claim: Type={claim.Type}, Value={claim.Value}");
                 
-                if (claim.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" || 
-                    claim.Type == ClaimTypes.Role ||
-                    claim.Type == "role")
+                // Role mapping - handle various formats
+                if (claim.Type == "role" || claim.Type.EndsWith("/role") || claim.Type == ClaimTypes.Role)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, claim.Value));
                     _logger.LogInformation($"Added Role Claim: {claim.Value}");
                 }
-                else if (claim.Type == "nameid" || claim.Type == ClaimTypes.NameIdentifier)
+                // NameIdentifier mapping
+                else if (claim.Type == "nameid" || claim.Type.EndsWith("/nameidentifier") || claim.Type == ClaimTypes.NameIdentifier)
                 {
                     claims.Add(new Claim(ClaimTypes.NameIdentifier, claim.Value));
                 }
-                else if (claim.Type == "email" || claim.Type == ClaimTypes.Email)
+                // Email mapping
+                else if (claim.Type == "email" || claim.Type.EndsWith("/emailaddress") || claim.Type == ClaimTypes.Email)
                 {
                     claims.Add(new Claim(ClaimTypes.Email, claim.Value));
                 }

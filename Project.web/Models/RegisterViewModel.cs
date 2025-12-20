@@ -17,7 +17,7 @@ public class RegisterViewModel
     public string Password { get; set; } = string.Empty;
 
     [Required]
-    public string? Role { get; set; } 
+    public string Role { get; set; } = "Member"; 
 
     public int? GymId { get; set; }
 
