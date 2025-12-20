@@ -78,7 +78,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 6;
+    options.Password.RequiredLength = 3; // allow short seed password "sau"
     options.User.RequireUniqueEmail = true;
 });
 
@@ -155,7 +155,7 @@ using (var scope = app.Services.CreateScope())
         }
 
         string adminEmail = "ogrencinumarasi@sakarya.edu.tr";
-        string adminPassword = "sau123";
+        string adminPassword = "sau";
         
         Log.Information("Admin kontrolü başlıyor...");
         var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
